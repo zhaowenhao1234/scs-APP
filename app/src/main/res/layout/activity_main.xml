@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+
+    <FrameLayout
+
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+
+        <com.baidu.mapapi.map.MapView
+
+            android:id="@+id/bmapView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clickable="true" />
+
+        <Button
+            android:id="@+id/notice"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="95dp"
+            android:background="@drawable/notice_selector" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="55dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:background="@drawable/toolbar"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/user"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:layout_margin="10dp"
+                android:background="@drawable/headpic" />
+
+            <Button
+                android:id="@+id/search"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="4"
+                android:text="请输入目的地"
+                android:gravity="center"
+                android:background="@android:color/transparent" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|top"
+            android:layout_marginTop="95dp"
+            android:layout_marginRight="5dp"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/map_mode"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_margin="5dp"
+                android:background="@drawable/map_button_selector" />
+
+            <Button
+                android:id="@+id/traffic_mode"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_margin="5dp"
+                android:background="@drawable/traffic_button_selector" />
+
+            <Button
+                android:id="@+id/openYingYan"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:layout_margin="5dp"
+                android:background="@drawable/open_yingyan_selector" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="95dp"
+            android:layout_gravity="bottom"
+            android:background="@drawable/bottom_bar"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/my_location"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_margin="40dp"
+                android:background="@drawable/location" />
+
+
+            <Button
+                android:id="@+id/btn_scanQRcode"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_margin="20dp"
+                android:layout_weight="1"
+                android:background="@android:color/transparent" />
+
+
+            <Button
+                android:id="@+id/user_message"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_margin="40dp"
+                android:background="@drawable/car_bottom" />
+        </LinearLayout>
+    </FrameLayout>
+
+
+    <android.support.design.widget.NavigationView
+        android:id="@+id/nav_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="end"
+        app:headerLayout="@layout/nav_header"
+        app:menu="@menu/nav_menu" />
+
+</android.support.v4.widget.DrawerLayout>
