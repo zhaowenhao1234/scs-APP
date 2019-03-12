@@ -23,10 +23,11 @@ import com.baidu.trace.api.entity.EntityListRequest;
 import com.baidu.trace.api.entity.EntityListResponse;
 import com.baidu.trace.api.entity.FilterCondition;
 import com.baidu.trace.api.entity.OnEntityListener;
+import com.baidu.trace.api.entity.UpdateEntityRequest;
+import com.baidu.trace.api.entity.UpdateEntityResponse;
 import com.baidu.trace.api.track.AddPointRequest;
 import com.baidu.trace.api.track.AddPointResponse;
 import com.baidu.trace.api.track.OnTrackListener;
-import com.baidu.trace.model.OnCustomAttributeListener;
 import com.baidu.trace.model.OnTraceListener;
 import com.baidu.trace.model.ProtocolType;
 import com.baidu.trace.model.PushMessage;
@@ -46,8 +47,7 @@ public class YingYan {
 
     private static final String TAG = YingYan.class.getSimpleName();
     private static final int QUERY_ENTITYLIST = 1;//查询指令
-    private static final int UPDATE_DIRECTION = 2;//更新位置指令
-
+    private static final int UPDATE_DIRECTION = 2;
     //上下文
     private Context context;
 
@@ -76,8 +76,10 @@ public class YingYan {
         public boolean handleMessage(Message msg) {
             switch (msg.what) {
                 case QUERY_ENTITYLIST:
-                    updateDirection();
                     queryEntityList();
+                    break;
+                case UPDATE_DIRECTION:
+                    updateDirection();
                     break;
             }
             return false;
@@ -100,8 +102,9 @@ public class YingYan {
     public void initPara() {
         bitmapDescriptor = ImageUtil.setImage(context, R.drawable.car, 0.4f, 0.4f);
         markerList = new ArrayList<>();
+        entities = new ArrayList<>();
         gatherInterval = 2;
-        packInterval = 12;
+        packInterval = 10;
         entityName = GetIMEI.getImei(context);
         serviceId = 209693;
         // 初始化轨迹服务
@@ -126,7 +129,7 @@ public class YingYan {
         mTraceListener = new OnTraceListener() {
             @Override
             public void onBindServiceCallback(int i, String s) {
-                Log.d(TAG, "onBindServiceCallback: " + i);
+
             }
 
             @Override
@@ -147,9 +150,9 @@ public class YingYan {
             public void onStartGatherCallback(int i, String s) {
                 if (i == 0) {
                     //初次将当前的entity设备信息上传到鹰眼服务
-                    upLoadMyLocation();
-                    //查询当前鹰眼服务中的设备实时位置
-                    queryEntityList();
+                    upLoadMyEntity();
+                    //开启子线程实时更新方向
+                    updateDirection();
                 }
                 Log.d(TAG, "onStartGatherCallback: " + i);
             }
@@ -200,7 +203,19 @@ public class YingYan {
             //获得所有service管理下的设备位置信息
             @Override
             public void onEntityListCallback(EntityListResponse entityListResponse) {
-                getEntitiesInfo(entityListResponse);
+                Log.d(TAG, "onEntityListCallback: " + entityListResponse.toString());
+
+                entities = entityListResponse.getEntities();
+                getEntitiesInfo();
+
+                Message message = Message.obtain();
+                message.what = QUERY_ENTITYLIST;
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        handler.sendMessage(message);
+                    }
+                }, 3000);
             }
 
 
@@ -208,11 +223,22 @@ public class YingYan {
             @Override
             public void onAddEntityCallback(AddEntityResponse addEntityResponse) {
                 Log.d(TAG, "onAddEntityCallback: " + addEntityResponse.toString());
-                //上传成功后随即开启线程更新设备的方向属性
-                updateDirection();
+                if (addEntityResponse.status == 3005) {
+                    updateEntity();
+                }
+                queryEntityList();
+
+            }
+
+            @Override
+            public void onUpdateEntityCallback(UpdateEntityResponse updateEntityResponse) {
+                Log.d(TAG, "onUpdateEntityCallback: " + updateEntityResponse.toString());
+                //查询当前鹰眼服务中的设备实时位置
+                queryEntityList();
             }
         };
     }
+
 
     /***
      *开启鹰眼轨迹服务
@@ -253,15 +279,32 @@ public class YingYan {
      *@author wenhaoz
      *created at 2019/3/10 19:18
      */
-    private void upLoadMyLocation() {
+    private void upLoadMyEntity() {
         AddEntityRequest addEntityRequest = new AddEntityRequest();
-        addEntityRequest.setTag(1);
+        addEntityRequest.setTag(entityName.hashCode());
         addEntityRequest.setServiceId(serviceId);
         addEntityRequest.setEntityName(entityName);
         Map<String, String> map = new HashMap();
         map.put("is_taxi", "taxi");
         addEntityRequest.setColumns(map);
         mTraceClient.addEntity(addEntityRequest, entityListener);
+    }
+
+    /***
+     *更新设备信息
+     *@return void
+     *@author wenhaoz
+     *created at 2019/3/12 19:29
+     */
+    private void updateEntity() {
+        UpdateEntityRequest updateEntityRequest = new UpdateEntityRequest();
+        updateEntityRequest.setTag(entityName.hashCode());
+        updateEntityRequest.setServiceId(serviceId);
+        updateEntityRequest.setEntityName(entityName);
+        Map<String, String> map = new HashMap();
+        map.put("is_taxi", "taxi");
+        updateEntityRequest.setColumns(map);
+        mTraceClient.updateEntity(updateEntityRequest, entityListener);
     }
 
     /***
@@ -272,11 +315,11 @@ public class YingYan {
      *created at 2019/3/10 19:22
      */
     private void updateDirection() {
-        //上传轨迹点
+        //更新方向
         AddPointRequest pointRequest = new AddPointRequest();
         pointRequest.setEntityName(entityName);
         pointRequest.setServiceId(serviceId);
-        pointRequest.setTag(1);
+        pointRequest.setTag(entityName.hashCode());
         com.baidu.trace.model.Point point = new com.baidu.trace.model.Point();
         com.baidu.trace.model.LatLng latLng = new com.baidu.trace.model.LatLng(MyLocationListener.location.getLatitude(), MyLocationListener.location.getLongitude());
         point.setLocation(latLng);
@@ -284,6 +327,15 @@ public class YingYan {
         point.setLocTime(System.currentTimeMillis() / 1000);
         pointRequest.setPoint(point);
         mTraceClient.addPoint(pointRequest, trackListener);
+
+        Message message = Message.obtain();
+        message.what = UPDATE_DIRECTION;
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                handler.sendMessage(message);
+            }
+        }, 1000);
     }
 
     /***
@@ -292,36 +344,26 @@ public class YingYan {
      *@author wenhaoz
      *created at 2019/3/11 22:33
      */
-    private void getEntitiesInfo(EntityListResponse entityListResponse) {
-        entities = entityListResponse.getEntities();
-        //synchronized (this) {
-        if (entities.size() > 0) {
-            for (int i = 0; i < entities.size(); i++) {
-                //if (!entities.get(i).getEntityName().equals(entityName)) {
-
-                int finalI = i;
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        addOtherMarker(entities.get(finalI));
-                    }
-                }).start();
-
-                //}
-            }
-            Message message = Message.obtain();
-            message.what = QUERY_ENTITYLIST;
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    handler.sendMessage(message);
-                }
-            }, 3000);
-            Log.d("onEntityListCallback", "当前Entity设备的数量" + entities.size());
+    private void getEntitiesInfo() {
+        if (entities == null) {
+            Log.d(TAG, "getEntitiesInfo: " + "entities为空");
         } else {
-            Toast.makeText(context, "未查询到在线的小白", Toast.LENGTH_SHORT).show();
+            if (entities.size() > 0) {
+                for (int i = 0; i < entities.size(); i++) {
+                    int finalI = i;
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            addOtherMarker(entities.get(finalI));
+                        }
+                    }).start();
+                }
+                Log.d("onEntityListCallback", "当前Entity设备的数量" + entities.size());
+            } else {
+                Toast.makeText(context, "未查询到在线的小白", Toast.LENGTH_SHORT).show();
+            }
         }
-        //}
+
     }
 
     /***
@@ -331,7 +373,7 @@ public class YingYan {
      *@author wenhaoz
      *created at 2019/3/12 15:15
      */
-    private void firstAddMarker(String entityName, LatLng latLng, int direction) {
+    private void addMarker(String entityName, LatLng latLng, int direction) {
         MarkerOptions options = new MarkerOptions().position(latLng).icon(bitmapDescriptor);
         Marker marker = (Marker) MainActivity.mBaidumap.addOverlay(options);
         Bundle bundle = new Bundle();
@@ -358,39 +400,44 @@ public class YingYan {
         com.baidu.trace.model.LatLng latLng = entityInfo.getLatestLocation().getLocation();
         LatLng latLngConvert = new LatLng(latLng.getLatitude(), latLng.getLongitude());
 
+        Log.d(TAG, "addOtherMarker:大小 " + markerList.size() + direction);
 
         //开始进行marker绘制工作且设置相应动画
         if (markerList.size() == 0) {
-            firstAddMarker(entityName, latLngConvert, direction);
+            addMarker(entityName, latLngConvert, direction);
         } else {
+            boolean isExist = false;
             for (int i = 0; i < markerList.size(); i++) {
 
                 Marker marker = markerList.get(i);
 
                 if (marker.getExtraInfo().getString("name").equals(entityName)) {
+                    isExist = true;
 
                     float fromDegree = marker.getRotate();
-                    float toDegree = Math.abs(360 - direction);
+                    float toDegree = 360 - direction;
 
                     Looper.prepare();
-                    if (fromDegree != toDegree) {
+
+                    if (Math.abs(fromDegree - toDegree) < 90) {
                         RotateAnimation rotateAnimation = new RotateAnimation(fromDegree, toDegree);
                         rotateAnimation.setDuration(2000);
                         marker.setAnimation(rotateAnimation);
                         marker.startAnimation();
                     }
-                    if (!(latLngConvert.longitude == latLng.getLongitude() && latLngConvert.latitude == latLng.getLatitude())) {
-                        Transformation transformation = new Transformation(latLngConvert);
-                        transformation.setDuration(2000);
-                        marker.setAnimation(transformation);
-                        marker.startAnimation();
-                    }
+
+
+                    Transformation transformation = new Transformation(latLngConvert);
+                    transformation.setDuration(2000);
+                    marker.setAnimation(transformation);
+                    marker.startAnimation();
+
                     Looper.loop();
 
-                } else {
-                    //检测到新的设备再次添加
-                    firstAddMarker(entityName, latLngConvert, direction);
                 }
+            }
+            if (!isExist) {
+                addMarker(entityName, latLngConvert, direction);
             }
         }
     }

@@ -263,7 +263,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //获得baidumap实例
         mBaidumap = mMapView.getMap();
         //开启我的定位图层
-        mBaidumap.setMyLocationEnabled(false);
+        mBaidumap.setMyLocationEnabled(true);
 
         //定位服务的客户端。宿主程序在客户端声明此类，并调用，目前只支持在主线程中启动
         locationClient = new LocationClient(getApplicationContext());
@@ -341,9 +341,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onDestroy() {
         //注销所有鹰眼相关服务
-        yingYan.mTraceClient.stopTrace(yingYan.mTrace, yingYan.mTraceListener);
         yingYan.mTraceClient.stopGather(yingYan.mTraceListener);
         yingYan.mTraceClient.clear();
+        yingYan = null;
 
         //在activity执行onDestroy时执行mMapView.onDestroy()，实现地图生命周期管理
         mMapView.onDestroy();
