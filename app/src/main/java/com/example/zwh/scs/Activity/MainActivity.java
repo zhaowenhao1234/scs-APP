@@ -1,36 +1,14 @@
 package com.example.zwh.scs.Activity;
 
 import android.Manifest;
-import android.app.Activity;
-import android.content.Context;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.Matrix;
-import android.net.Uri;
 import android.os.Build;
-import android.os.Handler;
-import android.support.annotation.TransitionRes;
-import android.annotation.SuppressLint;
-import android.content.ComponentName;
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -40,40 +18,30 @@ import com.baidu.mapapi.CoordType;
 import com.baidu.mapapi.SDKInitializer;
 import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.BitmapDescriptor;
-import com.baidu.mapapi.map.BitmapDescriptorFactory;
 import com.baidu.mapapi.map.MapView;
 import com.baidu.mapapi.map.Marker;
 import com.baidu.mapapi.map.MarkerOptions;
-import com.baidu.mapapi.map.Overlay;
-import com.baidu.mapapi.model.LatLng;
 import com.example.zwh.scs.Data.StationData;
 import com.example.zwh.scs.Listener.MyLocationListener;
 import com.example.zwh.scs.R;
 import com.example.zwh.scs.Util.ImageUtil;
-import com.example.zwh.scs.Util.IntentUtils;
 import com.example.zwh.scs.Util.YingYan;
-import com.example.zwh.scs.Util.StatusbarUtil;
-import com.example.zwh.scs.Wallet.WalletActivity;
-import com.uuzuche.lib_zxing.activity.CaptureActivity;
-import com.uuzuche.lib_zxing.activity.CodeUtils;
-import com.uuzuche.lib_zxing.activity.ZXingLibrary;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TreeMap;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends BaseActivity implements View.OnClickListener {
     private static final String TAG = "MainActivity".getClass().getSimpleName();
     private static final int PERMISSION_REQUESTCODE = 1;
-    private static final int QR_REQUEST_CODE = 10086;
+
 
     //地图模式状态标志
     private boolean mapMode;
     //布局view
-    private DrawerLayout mDrawerLayout; //滑动菜单
+
     private NavigationView navView;
-    private Button user_message;
-    private Button my_location;
+    //    private Button user_message;
+//    private Button my_location;
     private Button openYingYan;
     private Button mQRCodeScanner;
     private Button map_mode;
@@ -92,18 +60,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ArrayList<Marker> markerList = null;
     private BitmapDescriptor bitmapDescriptor = null;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //setLayout(R.layout.activity_main);
         SDKInitializer();//在使用SDK各组件之前初始化context信息，传入ApplicationContext
         initActionBar();
-        setContentView(R.layout.activity_main);
+        initContentView(R.layout.activity_main);
         permission();
         initView();//初始化视图
         initBaiduMap();//初始化百度地图
-        StatusbarUtil.setTransparentWindow(this, true);
-        ZXingLibrary.initDisplayOpinion(this);
     }
 
     /***
@@ -208,31 +174,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         bitmapDescriptor = ImageUtil.setImage(this, R.drawable.bus_stop_board, 0.15f, 0.15f);
         //获取地图控件引用
         mMapView = findViewById(R.id.bmapView);
-        map_mode = (Button) findViewById(R.id.map_mode);
-        traffic_mode = (Button) findViewById(R.id.traffic_mode);
+        map_mode = findViewById(R.id.map_mode);
+        traffic_mode = findViewById(R.id.traffic_mode);
 
 
         //获得baidumap实例
         mBaidumap = mMapView.getMap();
 
-        user_message = findViewById(R.id.user_message);
-        my_location = findViewById(R.id.my_location);
-        traffic_mode = (Button) findViewById(R.id.traffic_mode);
-        openYingYan = (Button) findViewById(R.id.openYingYan);
-
+//        user_message = findViewById(R.id.user_message);
+//        my_location = findViewById(R.id.my_location);
+        traffic_mode = findViewById(R.id.traffic_mode);
+        openYingYan = findViewById(R.id.openYingYan);
         //设置监听
         openYingYan.setOnClickListener(this);
-        my_location.setOnClickListener(this);
-        user_message.setOnClickListener(this);
+        //my_location.setOnClickListener(this);
+        //user_message.setOnClickListener(this);
         map_mode.setOnClickListener(this);
         traffic_mode.setOnClickListener(this);
-        findViewById(R.id.btn_scanQRcode).setOnClickListener(this);
+        //findViewById(R.id.btn_scanQRcode).setOnClickListener(this);
         //获得实例
-        mDrawerLayout = findViewById(R.id.drawer_layout);
-        mQRCodeScanner = findViewById(R.id.btn_scanQRcode);
-        mQRCodeScanner.setOnClickListener(this);
+        //mDrawerLayout = findViewById(R.id.drawer_layout);
+        //mQRCodeScanner = findViewById(R.id.btn_scanQRcode);
+        //mQRCodeScanner.setOnClickListener(this);
         //设置view
-        initNavigationView();
+        //initNavigationView();
     }
 
 
@@ -242,31 +207,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      *@author wenhaoz
      *created at 2019/3/2 17:39
      */
-    private void initNavigationView() {
-        navView = findViewById(R.id.nav_view);
-        navView.setItemIconTintList(null);//  取消导航栏图标着色
-        navView.setCheckedItem(R.id.nav_register);
-        navView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                switch (menuItem.getItemId()) {
-                    case R.id.nav_register://点击进入注册界面
-                        IntentUtils.SetIntent(MainActivity.this, RegisterActivity.class);
-                        break;
-                    case R.id.nav_login://点击进入登录界面
-                        IntentUtils.SetIntent(MainActivity.this, LoginActivity.class);
-                    case R.id.nav_task:
-                        mDrawerLayout.closeDrawers();
-                        break;
-                    case R.id.nav_payment:
-                        IntentUtils.SetIntent(MainActivity.this, WalletActivity.class);
-                        mDrawerLayout.closeDrawers();
-                        break;
-                }
-                return true;
-            }
-        });
-    }
+//    private void initNavigationView() {
+//        navView = findViewById(R.id.nav_view);
+//        navView.setItemIconTintList(null);//  取消导航栏图标着色
+//        navView.setCheckedItem(R.id.nav_register);
+//        navView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+//            @Override
+//            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+//                switch (menuItem.getItemId()) {
+//                    case R.id.nav_register://点击进入注册界面
+//                        IntentUtils.SetIntent(MainActivity.this, RegisterActivity.class);
+//                        break;
+//                    case R.id.nav_login://点击进入登录界面
+//                        IntentUtils.SetIntent(MainActivity.this, LoginActivity.class);
+//                    case R.id.nav_task:
+//                        mDrawerLayout.closeDrawers();
+//                        break;
+//                    case R.id.nav_payment:
+//                        IntentUtils.SetIntent(MainActivity.this, WalletActivity.class);
+//                        mDrawerLayout.closeDrawers();
+//                        break;
+//                }
+//                return true;
+//            }
+//        });
+//    }
 
 
     /***
@@ -379,22 +344,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         switch (v.getId()) {
 
-            case R.id.my_location:
-                myLocationListener.showMyLocaton(myLocationListener.location);
-                break;
-
-            case R.id.user_message:
-                mDrawerLayout.openDrawer(GravityCompat.END);
-                break;
+//            case R.id.my_location:
+//                myLocationListener.showMyLocaton(myLocationListener.location);
+//                break;
+//
+//            case R.id.user_message:
+//                //mDrawerLayout.openDrawer(GravityCompat.END);
+//                break;
 
             case R.id.openYingYan:
                 initYingYan();
                 break;
 
-            case R.id.btn_scanQRcode:
-                Intent intent = new Intent(MainActivity.this, CaptureActivity.class);
-                startActivityForResult(intent, QR_REQUEST_CODE);
-                break;
 
             case R.id.map_mode:
                 changeMapMode();
@@ -403,7 +364,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.traffic_mode:
                 setTrafficOverlay();
                 break;
-
             default:
                 break;
         }
@@ -444,54 +404,5 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mapMode = !mapMode;
     }
 
-    @SuppressLint("WrongConstant")
-    private void handleQRCodeScanner(String result) {
-        if (result != null) {
-            if (result.indexOf("wxp") != -1) {
-                try {
-                    Intent intent = new Intent();
-                    intent.setComponent(new ComponentName("com.tencent.mm", "com.tencent.mm.ui.LauncherUI"));
-                    intent.putExtra("LauncherUI.From.Scaner.Shortcut", true);
-                    intent.setFlags(335544320);
-                    intent.setAction("android.intent.action.VIEW");
-                    this.startActivity(intent);
-                } catch (Exception e) {
-                    //若无法正常跳转，在此进行错误处理
-                    Toast.makeText(this, "无法跳转到微信，请检查是否安装了微信", Toast.LENGTH_SHORT).show();
-                }
-            } else if (result.indexOf("alipay") != -1) {
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(Uri.parse(result));
-                startActivity(intent);
-            } else if (result.indexOf("ALIPAY") != -1) {
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(Uri.parse(IntentUtils.handleAlipayUpperCase(result)));
-                startActivity(intent);
-            } else {
-                Toast.makeText(this, "解析结果:" + result, Toast.LENGTH_LONG).show();
-            }
 
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        //处理二维码扫描结果
-        if (requestCode == QR_REQUEST_CODE) {
-            //处理扫描结果（在界面上显示）
-            if (null != data) {
-                Bundle bundle = data.getExtras();
-                if (bundle == null) {
-                    return;
-                }
-                if (bundle.getInt(CodeUtils.RESULT_TYPE) == CodeUtils.RESULT_SUCCESS) {
-                    String result = bundle.getString(CodeUtils.RESULT_STRING);
-                    handleQRCodeScanner(result);
-                } else if (bundle.getInt(CodeUtils.RESULT_TYPE) == CodeUtils.RESULT_FAILED) {
-                    Toast.makeText(MainActivity.this, "解析二维码失败", Toast.LENGTH_LONG).show();
-                }
-            }
-        }
-    }
 }

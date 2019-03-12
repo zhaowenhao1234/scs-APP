@@ -3,16 +3,6 @@
     <group android:checkableBehavior="single">
 
         <item
-            android:id="@+id/nav_register"
-            android:icon="@mipmap/nav_register"
-            android:title="Register" />
-
-        <item
-            android:id="@+id/nav_login"
-            android:icon="@mipmap/nav_login"
-            android:title="Login" />
-
-        <item
             android:id="@+id/nav_task"
             android:icon="@mipmap/nav_task"
             android:title="Task" />
@@ -20,7 +10,11 @@
         <item
             android:id="@+id/nav_payment"
             android:icon="@mipmap/nav_payment"
-            android:title="Payment" />
+            android:title="钱包" />
+        <item
+            android:id="@+id/nav_msgboard"
+            android:icon="@mipmap/baseline_question_answer_black_36dp"
+            android:title="留言板" />
 
     </group>
 </menu>
