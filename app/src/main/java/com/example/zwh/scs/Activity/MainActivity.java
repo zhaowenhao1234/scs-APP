@@ -1,17 +1,10 @@
 package com.example.zwh.scs.Activity;
 
 import android.Manifest;
-import android.app.Activity;
-import android.content.Context;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Handler;
-import android.support.annotation.TransitionRes;
 import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Intent;
@@ -23,29 +16,20 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Toast;
-
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
 import com.baidu.mapapi.CoordType;
 import com.baidu.mapapi.SDKInitializer;
 import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.BitmapDescriptor;
-import com.baidu.mapapi.map.BitmapDescriptorFactory;
 import com.baidu.mapapi.map.MapView;
 import com.baidu.mapapi.map.Marker;
 import com.baidu.mapapi.map.MarkerOptions;
-import com.baidu.mapapi.map.Overlay;
-import com.baidu.mapapi.model.LatLng;
 import com.example.zwh.scs.Data.StationData;
 import com.example.zwh.scs.Listener.MyLocationListener;
 import com.example.zwh.scs.R;
@@ -57,10 +41,8 @@ import com.example.zwh.scs.Wallet.WalletActivity;
 import com.uuzuche.lib_zxing.activity.CaptureActivity;
 import com.uuzuche.lib_zxing.activity.CodeUtils;
 import com.uuzuche.lib_zxing.activity.ZXingLibrary;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TreeMap;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "MainActivity".getClass().getSimpleName();
@@ -78,6 +60,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button mQRCodeScanner;
     private Button map_mode;
     private Button traffic_mode;
+    private Button notice;
 
     //地图有关类
     private MapView mMapView = null;
@@ -185,10 +168,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     private void initActionBar() {
         if (Build.VERSION.SDK_INT >= 21) {
-//            View decorView = getWindow().getDecorView();
-//            decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
             getWindow().setStatusBarColor(Color.TRANSPARENT);//仿百度地图
-//            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         }
     }
 
@@ -210,6 +190,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mMapView = findViewById(R.id.bmapView);
         map_mode = (Button) findViewById(R.id.map_mode);
         traffic_mode = (Button) findViewById(R.id.traffic_mode);
+        notice = (Button) findViewById(R.id.notice);
 
 
         //获得baidumap实例
@@ -226,6 +207,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         user_message.setOnClickListener(this);
         map_mode.setOnClickListener(this);
         traffic_mode.setOnClickListener(this);
+        notice.setOnClickListener(this);
         findViewById(R.id.btn_scanQRcode).setOnClickListener(this);
         //获得实例
         mDrawerLayout = findViewById(R.id.drawer_layout);
@@ -281,7 +263,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //获得baidumap实例
         mBaidumap = mMapView.getMap();
         //开启我的定位图层
-        mBaidumap.setMyLocationEnabled(true);
+        mBaidumap.setMyLocationEnabled(false);
 
         //定位服务的客户端。宿主程序在客户端声明此类，并调用，目前只支持在主线程中启动
         locationClient = new LocationClient(getApplicationContext());
@@ -380,11 +362,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (v.getId()) {
 
             case R.id.my_location:
-                myLocationListener.showMyLocaton(myLocationListener.location);
+                myLocationListener.showMyLocaton(MyLocationListener.location);
                 break;
 
             case R.id.user_message:
                 mDrawerLayout.openDrawer(GravityCompat.END);
+                break;
+
+            case R.id.notice:
                 break;
 
             case R.id.openYingYan:
@@ -494,4 +479,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
     }
+
+
 }
