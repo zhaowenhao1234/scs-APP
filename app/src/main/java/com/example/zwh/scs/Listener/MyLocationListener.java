@@ -2,7 +2,6 @@ package com.example.zwh.scs.Listener;
 
 import android.support.annotation.NonNull;
 import android.util.Log;
-
 import com.baidu.location.BDAbstractLocationListener;
 import com.baidu.location.BDLocation;
 import com.baidu.mapapi.map.MapStatusUpdate;
@@ -20,8 +19,8 @@ import com.example.zwh.scs.Activity.MainActivity;
 
 public class MyLocationListener extends BDAbstractLocationListener {
     private static final String TAG = "MyLocationListener".getClass().getSimpleName();
-    public BDLocation location = null;
-    public boolean isFirst;
+    public static BDLocation location = null;
+    private boolean isFirst;
     private MyLocationConfiguration mConfig = null;
 
 
@@ -78,7 +77,7 @@ public class MyLocationListener extends BDAbstractLocationListener {
     public String getMyAddressDescription() {
         String type = location.getLocationDescribe();//获取定位类型、定位错误返回码，具体信息可参照类参考中BDLocation类中的说明
         String addr = location.getAddrStr(); //获取详细地址信息
-        Log.d(TAG, "onReceiveLocation: " + addr + "  " + type);
+        Log.d(TAG, "onReceiveLocation: " + addr + "  " + type + "方向" + location.getDirection());
         return addr;
     }
 
@@ -105,5 +104,6 @@ public class MyLocationListener extends BDAbstractLocationListener {
         //地图缩放行为
         MainActivity.mBaidumap.animateMapStatus(u);
     }
+
 
 }

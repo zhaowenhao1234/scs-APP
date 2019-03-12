@@ -34,7 +34,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     String str_username = "";//获取用户名
     String str_password = "";//用户密码
-    String Code;//服务器返回的值
+    String Code;             //服务器返回的值
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
