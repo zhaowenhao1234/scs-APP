@@ -76,10 +76,8 @@ public class YingYan {
         public boolean handleMessage(Message msg) {
             switch (msg.what) {
                 case QUERY_ENTITYLIST:
-                    queryEntityList();
-                    break;
-                case UPDATE_DIRECTION:
                     updateDirection();
+                    queryEntityList();
                     break;
             }
             return false;
@@ -286,16 +284,6 @@ public class YingYan {
         point.setLocTime(System.currentTimeMillis() / 1000);
         pointRequest.setPoint(point);
         mTraceClient.addPoint(pointRequest, trackListener);
-
-        //开启线程每两秒更新一次entity的方向信息
-        Message message = Message.obtain();
-        message.what = UPDATE_DIRECTION;
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                handler.sendMessage(message);
-            }
-        }, 3000);
     }
 
     /***
@@ -306,34 +294,34 @@ public class YingYan {
      */
     private void getEntitiesInfo(EntityListResponse entityListResponse) {
         entities = entityListResponse.getEntities();
-        synchronized (this) {
-            if (entities.size() > 0) {
-                for (int i = 0; i < entities.size(); i++) {
-                    //if (!entities.get(i).getEntityName().equals(entityName)) {
+        //synchronized (this) {
+        if (entities.size() > 0) {
+            for (int i = 0; i < entities.size(); i++) {
+                //if (!entities.get(i).getEntityName().equals(entityName)) {
 
-                    int finalI = i;
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            addOtherMarker(entities.get(finalI));
-                        }
-                    }).start();
-
-                    //}
-                }
-                Message message = Message.obtain();
-                message.what = QUERY_ENTITYLIST;
-                handler.postDelayed(new Runnable() {
+                int finalI = i;
+                new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        handler.sendMessage(message);
+                        addOtherMarker(entities.get(finalI));
                     }
-                }, 3000);
-                Log.d("onEntityListCallback", "当前Entity设备的数量" + entities.size());
-            } else {
-                Toast.makeText(context, "未查询到在线的小白", Toast.LENGTH_SHORT).show();
+                }).start();
+
+                //}
             }
+            Message message = Message.obtain();
+            message.what = QUERY_ENTITYLIST;
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    handler.sendMessage(message);
+                }
+            }, 3000);
+            Log.d("onEntityListCallback", "当前Entity设备的数量" + entities.size());
+        } else {
+            Toast.makeText(context, "未查询到在线的小白", Toast.LENGTH_SHORT).show();
         }
+        //}
     }
 
     /***
@@ -376,16 +364,29 @@ public class YingYan {
             firstAddMarker(entityName, latLngConvert, direction);
         } else {
             for (int i = 0; i < markerList.size(); i++) {
-                if (markerList.get(i).getExtraInfo().getString("name").equals(entityName)) {
-                    Transformation transformation = new Transformation(latLngConvert);
-                    RotateAnimation rotateAnimation = new RotateAnimation(markerList.get(i).getRotate(), Math.abs(360 - direction));
-                    rotateAnimation.setDuration(3000);
-                    transformation.setDuration(3000);
-                    markerList.get(i).setAnimation(transformation);
-                    markerList.get(i).setAnimation(rotateAnimation);
+
+                Marker marker = markerList.get(i);
+
+                if (marker.getExtraInfo().getString("name").equals(entityName)) {
+
+                    float fromDegree = marker.getRotate();
+                    float toDegree = Math.abs(360 - direction);
+
                     Looper.prepare();
-                    markerList.get(i).startAnimation();
+                    if (fromDegree != toDegree) {
+                        RotateAnimation rotateAnimation = new RotateAnimation(fromDegree, toDegree);
+                        rotateAnimation.setDuration(2000);
+                        marker.setAnimation(rotateAnimation);
+                        marker.startAnimation();
+                    }
+                    if (!(latLngConvert.longitude == latLng.getLongitude() && latLngConvert.latitude == latLng.getLatitude())) {
+                        Transformation transformation = new Transformation(latLngConvert);
+                        transformation.setDuration(2000);
+                        marker.setAnimation(transformation);
+                        marker.startAnimation();
+                    }
                     Looper.loop();
+
                 } else {
                     //检测到新的设备再次添加
                     firstAddMarker(entityName, latLngConvert, direction);
