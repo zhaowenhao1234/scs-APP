@@ -29,6 +29,7 @@ import com.baidu.trace.api.track.AddPointRequest;
 import com.baidu.trace.api.track.AddPointResponse;
 import com.baidu.trace.api.track.OnTrackListener;
 import com.baidu.trace.model.OnTraceListener;
+import com.baidu.trace.model.Point;
 import com.baidu.trace.model.ProtocolType;
 import com.baidu.trace.model.PushMessage;
 import com.example.zwh.scs.Activity.MainActivity;
@@ -39,39 +40,39 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * created at 2019/3/3 13:15 by wenhaoz
  */
 public class YingYan {
 
-    private static final String TAG = YingYan.class.getSimpleName();
-    private static final int QUERY_ENTITYLIST = 1;//查询指令
-    private static final int UPDATE_DIRECTION = 2;
+    private final String TAG = YingYan.class.getSimpleName();
+    private final int QUERY_SUCCESS = 0;
+    private final int QUERY_ENTITYLIST = 1;//查询指令
+    private final int UPDATE_DIRECTION = 2;
     //上下文
     private Context context;
+    private ExecutorService cachedThreadPool = null;
 
     //鹰眼服务监听器
     public OnTraceListener mTraceListener;
     public OnEntityListener entityListener;
     public OnTrackListener trackListener;
 
-
     //鹰眼轨迹相关参数
-    private int gatherInterval; //位置采集周期 (s)
-    private int packInterval;   //打包周期 (s)
     private String entityName;  // entity标识
     private long serviceId;     //鹰眼服务ID
 
-    public Trace mTrace = null;                 //实例化轨迹服务
+    public Trace mTrace = null;                //鹰眼服务
     public LBSTraceClient mTraceClient = null;  //实例化轨迹服务客户端
-
     private List<EntityInfo> entities = null;   //实体信息存储列表
     private List<Marker> markerList = null;     //marker存储列表
-    private BitmapDescriptor bitmapDescriptor = null;
 
 
-    private Handler handler = new Handler(new Handler.Callback() {
+    private Handler handler = new Handler(Looper.getMainLooper(), new Handler.Callback() {
+
         @Override
         public boolean handleMessage(Message msg) {
             switch (msg.what) {
@@ -86,11 +87,11 @@ public class YingYan {
         }
     });
 
+    //构造函数
     public YingYan(Context context) {
         this.context = context;
-        initPara();        //初始化各项参数
         initListener();     //初始化监听器
-        openTraceService(); //开启鹰眼轨迹服务
+        initPara();        //初始化各项参数
     }
 
     /***
@@ -100,17 +101,24 @@ public class YingYan {
      *created at 2019/3/3 12:37
      */
     public void initPara() {
-        bitmapDescriptor = ImageUtil.setImage(context, R.drawable.car, 0.4f, 0.4f);
-        markerList = new ArrayList<>();
-        entities = new ArrayList<>();
-        gatherInterval = 2;
-        packInterval = 10;
-        entityName = GetIMEI.getImei(context);
-        serviceId = 209693;
-        // 初始化轨迹服务
+        int gatherInterval = 2;//位置采集周期 (s)
+        int packInterval = 10;//打包周期 (s)
+        cachedThreadPool = Executors.newCachedThreadPool();//绘制Marker的线程池
+        markerList = new ArrayList<>();                    //marker实例集合
+        entities = new ArrayList<>();                      //实体信息集合
+        entityName = GetIMEI.getImei(context);             //实体名称
+        serviceId = 209693;                                //鹰眼服务ID
+
+        //实例化轨迹服务
         mTrace = new Trace(serviceId, entityName, false);
         // 初始化轨迹服务客户端
         mTraceClient = new LBSTraceClient(context);
+        //设置位置采集和打包周期
+        mTraceClient.setInterval(gatherInterval, packInterval);
+        //设置协议类型 http 或 https
+        mTraceClient.setProtocolType(ProtocolType.HTTP);
+        // 开启服务
+        mTraceClient.startTrace(mTrace, mTraceListener);
     }
 
     /***
@@ -135,9 +143,8 @@ public class YingYan {
             @Override
             public void onStartTraceCallback(int i, String s) {
                 //当启动服务成功时，开启位置收集服务
-                if (i == 0) {
+                if (i == QUERY_SUCCESS) {
                     mTraceClient.startGather(this);
-                    Log.d(TAG, "onStartTraceCallback: " + i);
                 }
             }
 
@@ -148,13 +155,13 @@ public class YingYan {
 
             @Override
             public void onStartGatherCallback(int i, String s) {
-                if (i == 0) {
+                if (i == QUERY_SUCCESS) {
                     //初次将当前的entity设备信息上传到鹰眼服务
                     upLoadMyEntity();
-                    //开启子线程实时更新方向
-                    updateDirection();
+
                 }
-                Log.d(TAG, "onStartGatherCallback: " + i);
+                //开启子线程实时更新方向
+                updateDirection();
             }
 
             @Override
@@ -190,6 +197,7 @@ public class YingYan {
             }
         };
 
+
         /****
          *初始化实体状态监听器
          *@param
@@ -203,10 +211,8 @@ public class YingYan {
             //获得所有service管理下的设备位置信息
             @Override
             public void onEntityListCallback(EntityListResponse entityListResponse) {
-                Log.d(TAG, "onEntityListCallback: " + entityListResponse.toString());
-
                 entities = entityListResponse.getEntities();
-                getEntitiesInfo();
+                handleEntitiesInfo();
 
                 Message message = Message.obtain();
                 message.what = QUERY_ENTITYLIST;
@@ -215,44 +221,25 @@ public class YingYan {
                     public void run() {
                         handler.sendMessage(message);
                     }
-                }, 3000);
+                }, 2000);
             }
 
 
             //添加当前设备的位置信息回调
             @Override
             public void onAddEntityCallback(AddEntityResponse addEntityResponse) {
-                Log.d(TAG, "onAddEntityCallback: " + addEntityResponse.toString());
                 if (addEntityResponse.status == 3005) {
                     updateEntity();
                 }
                 queryEntityList();
-
             }
 
             @Override
             public void onUpdateEntityCallback(UpdateEntityResponse updateEntityResponse) {
-                Log.d(TAG, "onUpdateEntityCallback: " + updateEntityResponse.toString());
                 //查询当前鹰眼服务中的设备实时位置
                 queryEntityList();
             }
         };
-    }
-
-
-    /***
-     *开启鹰眼轨迹服务
-     *@return void
-     *@author wenhaoz
-     *created at 2019/3/3 12:16
-     */
-    public void openTraceService() {
-        //设置位置采集和打包周期
-        mTraceClient.setInterval(gatherInterval, packInterval);
-        //设置协议类型 http 或 https
-        mTraceClient.setProtocolType(ProtocolType.HTTP);
-        // 开启服务
-        mTraceClient.startTrace(mTrace, mTraceListener);
     }
 
     /***
@@ -262,15 +249,16 @@ public class YingYan {
      */
     public void queryEntityList() {
         //创建请求
-        EntityListRequest request = new EntityListRequest(1, serviceId);
+        EntityListRequest request = new EntityListRequest(entityName.hashCode(), serviceId);
         //进行筛选 获得司机列表
         FilterCondition filterCondition = new FilterCondition();
-        Map<String, String> map = new HashMap<>();
+        HashMap<String, String> map = new HashMap<>();
         map.put("is_taxi", "taxi");
         filterCondition.setColumns(map);
         request.setFilterCondition(filterCondition);
         //发起请求
         mTraceClient.queryEntityList(request, entityListener);
+
     }
 
     /***
@@ -315,19 +303,29 @@ public class YingYan {
      *created at 2019/3/10 19:22
      */
     private void updateDirection() {
-        //更新方向
+        Point point = new Point();
+        com.baidu.trace.model.LatLng latLng = new com.baidu.trace.model.LatLng();
+
+        //创建AddPointRequest对象，准备添加实时轨迹点
         AddPointRequest pointRequest = new AddPointRequest();
         pointRequest.setEntityName(entityName);
         pointRequest.setServiceId(serviceId);
         pointRequest.setTag(entityName.hashCode());
-        com.baidu.trace.model.Point point = new com.baidu.trace.model.Point();
-        com.baidu.trace.model.LatLng latLng = new com.baidu.trace.model.LatLng(MyLocationListener.location.getLatitude(), MyLocationListener.location.getLongitude());
+
+        //创建经纬度对象
+        latLng.setLatitude(MyLocationListener.location.getLatitude());
+        latLng.setLongitude(MyLocationListener.location.getLongitude());
+
+        //封装轨迹点信息
         point.setLocation(latLng);
         point.setDirection((int) MyLocationListener.location.getDirection());
         point.setLocTime(System.currentTimeMillis() / 1000);
         pointRequest.setPoint(point);
+
+        //上传轨迹点
         mTraceClient.addPoint(pointRequest, trackListener);
 
+        //每一秒钟更新一次轨迹点
         Message message = Message.obtain();
         message.what = UPDATE_DIRECTION;
         handler.postDelayed(new Runnable() {
@@ -339,31 +337,38 @@ public class YingYan {
     }
 
     /***
-     *从onEntityListCallback回调中提取信息
+     *从onEntityListCallback回调中提取信息并做出绘制marker处理
      *@return void
      *@author wenhaoz
      *created at 2019/3/11 22:33
      */
-    private void getEntitiesInfo() {
-        if (entities == null) {
-            Log.d(TAG, "getEntitiesInfo: " + "entities为空");
-        } else {
-            if (entities.size() > 0) {
-                for (int i = 0; i < entities.size(); i++) {
-                    int finalI = i;
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            addOtherMarker(entities.get(finalI));
-                        }
-                    }).start();
-                }
-                Log.d("onEntityListCallback", "当前Entity设备的数量" + entities.size());
-            } else {
-                Toast.makeText(context, "未查询到在线的小白", Toast.LENGTH_SHORT).show();
-            }
-        }
+    private void handleEntitiesInfo() {
 
+        if (entities.size() > 0) {
+            for (int i = 0; i < entities.size(); i++) {
+                EntityInfo entityInfo = entities.get(i);
+
+                //获得设备唯一标识符
+                String entityName = entityInfo.getEntityName();
+
+                //获得设备旋转方向
+                int direction = entityInfo.getLatestLocation().getDirection();
+
+                //获得设备经纬度及其转换后的经纬度
+                com.baidu.trace.model.LatLng latLng = entityInfo.getLatestLocation().getLocation();
+                LatLng latLngConvert = new LatLng(latLng.getLatitude(), latLng.getLongitude());
+
+                //执行绘制线程
+                cachedThreadPool.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        startMarkerAnimation(entityName, latLngConvert, direction);
+                    }
+                });
+            }
+        } else {
+            Toast.makeText(context, "未查询到在线的小白", Toast.LENGTH_SHORT).show();
+        }
     }
 
     /***
@@ -374,6 +379,7 @@ public class YingYan {
      *created at 2019/3/12 15:15
      */
     private void addMarker(String entityName, LatLng latLng, int direction) {
+        BitmapDescriptor bitmapDescriptor = ImageUtil.setImage(context, R.drawable.car, 0.4f, 0.4f);
         MarkerOptions options = new MarkerOptions().position(latLng).icon(bitmapDescriptor);
         Marker marker = (Marker) MainActivity.mBaidumap.addOverlay(options);
         Bundle bundle = new Bundle();
@@ -389,20 +395,8 @@ public class YingYan {
      *@author wenhaoz
      *created at 2019/3/12 16:04
      */
-    private void addOtherMarker(EntityInfo entityInfo) {
-        //获得设备唯一标识符
-        String entityName = entityInfo.getEntityName();
+    private void startMarkerAnimation(String entityName, LatLng latLngConvert, int direction) {
 
-        //获得设备旋转方向
-        int direction = entityInfo.getLatestLocation().getDirection();
-
-        //获得设备经纬度及其转换
-        com.baidu.trace.model.LatLng latLng = entityInfo.getLatestLocation().getLocation();
-        LatLng latLngConvert = new LatLng(latLng.getLatitude(), latLng.getLongitude());
-
-        Log.d(TAG, "addOtherMarker:大小 " + markerList.size() + direction);
-
-        //开始进行marker绘制工作且设置相应动画
         if (markerList.size() == 0) {
             addMarker(entityName, latLngConvert, direction);
         } else {
@@ -414,26 +408,34 @@ public class YingYan {
                 if (marker.getExtraInfo().getString("name").equals(entityName)) {
                     isExist = true;
 
+                    //获得旋转角度
                     float fromDegree = marker.getRotate();
                     float toDegree = 360 - direction;
 
-                    Looper.prepare();
-
-                    if (Math.abs(fromDegree - toDegree) < 90) {
-                        RotateAnimation rotateAnimation = new RotateAnimation(fromDegree, toDegree);
-                        rotateAnimation.setDuration(2000);
-                        marker.setAnimation(rotateAnimation);
-                        marker.startAnimation();
+                    //若旋转角度之差小于等于九十度则设置动画
+                    if (Math.abs(fromDegree - toDegree) <= 90) {
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                RotateAnimation rotateAnimation = new RotateAnimation(fromDegree, toDegree);
+                                rotateAnimation.setDuration(2000);
+                                marker.setAnimation(rotateAnimation);
+                                marker.startAnimation();
+                            }
+                        });
                     }
 
-
-                    Transformation transformation = new Transformation(latLngConvert);
-                    transformation.setDuration(2000);
-                    marker.setAnimation(transformation);
-                    marker.startAnimation();
-
-                    Looper.loop();
-
+                    //若当前的位置并没有发生改变则不进行绘制
+                    if ((!latLngConvert.equals(marker.getPosition()))) {
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                Transformation transformation = new Transformation(latLngConvert);
+                                transformation.setDuration(2000);
+                                marker.setAnimation(transformation);
+                            }
+                        });
+                    }
                 }
             }
             if (!isExist) {
