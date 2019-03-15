@@ -75,7 +75,6 @@ public class BaseActivity extends AppCompatActivity {
     public android.support.v7.widget.Toolbar initToolbar(int id, int titleId, String titleString) {
         android.support.v7.widget.Toolbar toolbar =
                 findViewById(id);
-//        toolbar.setTitle("");
         TextView textView = findViewById(titleId);
         textView.setText(titleString);
         setSupportActionBar(toolbar);
