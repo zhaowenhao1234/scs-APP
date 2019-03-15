@@ -27,14 +27,26 @@ import okhttp3.Response;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 
+    String str_username = "";//获取用户名
+    String str_password = "";//用户密码
+    String Code;//服务器返回的值
     private EditText accountEditl;
     private EditText passwordEditl;
     private Button login;
     private TextView responseText;
-
-    String str_username = "";//获取用户名
-    String str_password = "";//用户密码
-    String Code;             //服务器返回的值
+private Handler handler = new Handler(new Handler.Callback() {
+        @Override
+    public boolean handleMessage(Message msg) {
+    responseText.setText(msg.obj.toString());
+     Code= jsonToJsonObject(msg.obj.toString());
+            if (Code.equals("100")) {
+                Toast.makeText(LoginActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(LoginActivity.this, "登录失败", Toast.LENGTH_SHORT).show();
+            }
+            return true;
+        }
+    });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,20 +102,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             }
         }).start();
     }
-
-    private Handler handler = new Handler(new Handler.Callback() {
-        @Override
-        public boolean handleMessage(Message msg) {
-            responseText.setText(msg.obj.toString());
-            Code = jsonToJsonObject(msg.obj.toString());
-            if (Code.equals("100")) {
-                Toast.makeText(LoginActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(LoginActivity.this, "登录失败", Toast.LENGTH_SHORT).show();
-            }
-            return true;
-        }
-    });
 
     public String jsonToJsonObject(String json) {
         String code = "";

@@ -25,11 +25,21 @@ import okhttp3.Response;
 
 public class RegisterActivity extends AppCompatActivity implements View.OnClickListener {
 
+    String str1 = "";//获取用户名
+    String str3 = "";//获取用户密码（输入密码）
+    String str5 = "";//确认密码
     private TextView responseText;
     private EditText editText_accountr;//注意实例化的位置
     private EditText editText_passwordr;//
     private EditText editText_password_again;
     private Button register;
+    private Handler handler = new Handler(new Handler.Callback() {
+        @Override
+        public boolean handleMessage(Message msg) {
+            responseText.setText(msg.obj.toString());
+            return true;
+        }
+    });
 
     @SuppressLint("WrongViewCast")
     @Override
@@ -45,19 +55,6 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
         register.setOnClickListener(this);
     }
-
-    private Handler handler = new Handler(new Handler.Callback() {
-        @Override
-        public boolean handleMessage(Message msg) {
-            responseText.setText(msg.obj.toString());
-            return true;
-        }
-    });
-
-
-    String str1 = "";//获取用户名
-    String str3 = "";//获取用户密码（输入密码）
-    String str5 = "";//确认密码
 
     private void sendRequestWithOkHttp() {
 
