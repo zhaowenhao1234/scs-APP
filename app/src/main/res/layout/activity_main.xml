@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -8,6 +9,15 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
+
+        <Button
+            android:id="@+id/my_location"
+            android:background="@drawable/my_location_selector"
+            android:layout_gravity="bottom|left"
+            android:layout_marginBottom="35dp"
+            android:layout_marginLeft="5dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp" />
 
         <com.baidu.mapapi.map.MapView
             android:id="@+id/bmapView"
@@ -19,31 +29,41 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="right|top"
-            android:layout_marginTop="35dp"
-            android:layout_marginRight="5dp"
+            android:layout_marginTop="30dp"
+            android:layout_marginRight="1dp"
+            android:background="@drawable/bts_cm_rect_bg_on_map"
             android:orientation="vertical">
 
             <Button
                 android:id="@+id/map_mode"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
                 android:layout_margin="5dp"
                 android:background="@drawable/map_button_selector" />
-
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="10dp"
+                android:background="#ececec" />
             <Button
                 android:id="@+id/traffic_mode"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
                 android:layout_margin="5dp"
                 android:background="@drawable/traffic_button_selector" />
-
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="10dp"
+                android:background="#ececec" />
             <Button
                 android:id="@+id/openYingYan"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
                 android:layout_margin="5dp"
-                android:background="@drawable/open_yingyan_selector" />
+                android:background="@drawable/dgp_map_icon_bus" />
         </LinearLayout>
+
 
     </FrameLayout>
 </LinearLayout>

@@ -12,7 +12,6 @@ import com.example.zwh.scs.Util.IntentUtils;
  * created at 2019/3/7 21:33 by wenhaoz
  */
 public class LaunchActivity extends AppCompatActivity {
-    private ImageView launch_bg;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -33,7 +32,7 @@ public class LaunchActivity extends AppCompatActivity {
             @Override
             public void run() {
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(3000);
                     IntentUtils.SetIntent(LaunchActivity.this, MainActivity.class);
                     finish();
                 } catch (InterruptedException e) {

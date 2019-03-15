@@ -8,6 +8,7 @@ import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.baidu.mapapi.animation.AnimationSet;
 import com.baidu.mapapi.animation.RotateAnimation;
 import com.baidu.mapapi.animation.Transformation;
 import com.baidu.mapapi.map.BitmapDescriptor;
@@ -221,7 +222,7 @@ public class YingYan {
                     public void run() {
                         handler.sendMessage(message);
                     }
-                }, 2000);
+                }, 1000);
             }
 
 
@@ -322,6 +323,7 @@ public class YingYan {
         point.setLocTime(System.currentTimeMillis() / 1000);
         pointRequest.setPoint(point);
 
+        Toast.makeText(context,""+point.getLocation().toString(),Toast.LENGTH_SHORT).show();
         //上传轨迹点
         mTraceClient.addPoint(pointRequest, trackListener);
 
@@ -362,6 +364,7 @@ public class YingYan {
                 cachedThreadPool.execute(new Runnable() {
                     @Override
                     public void run() {
+                        Log.d(TAG, "run: "+latLngConvert.toString());
                         startMarkerAnimation(entityName, latLngConvert, direction);
                     }
                 });
@@ -397,6 +400,7 @@ public class YingYan {
      */
     private void startMarkerAnimation(String entityName, LatLng latLngConvert, int direction) {
 
+        Log.d(TAG, "startMarkerAnimation: "+entityName+" "+latLngConvert.toString());
         if (markerList.size() == 0) {
             addMarker(entityName, latLngConvert, direction);
         } else {
@@ -413,29 +417,26 @@ public class YingYan {
                     float toDegree = 360 - direction;
 
                     //若旋转角度之差小于等于九十度则设置动画
-                    if (Math.abs(fromDegree - toDegree) <= 90) {
+                    if (Math.abs(fromDegree - toDegree) <= 180) {
                         handler.post(new Runnable() {
                             @Override
                             public void run() {
                                 RotateAnimation rotateAnimation = new RotateAnimation(fromDegree, toDegree);
-                                rotateAnimation.setDuration(2000);
-                                marker.setAnimation(rotateAnimation);
+                                Transformation transformation = new Transformation(latLngConvert);
+
+
+                                AnimationSet set = new AnimationSet();
+                                set.addAnimation(rotateAnimation);
+                                set.addAnimation(transformation);
+                                set.setDuration(500);
+                                set.setAnimatorSetMode(0);
+
+                                marker.setAnimation(set);
                                 marker.startAnimation();
                             }
                         });
                     }
 
-                    //若当前的位置并没有发生改变则不进行绘制
-                    if ((!latLngConvert.equals(marker.getPosition()))) {
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                Transformation transformation = new Transformation(latLngConvert);
-                                transformation.setDuration(2000);
-                                marker.setAnimation(transformation);
-                            }
-                        });
-                    }
                 }
             }
             if (!isExist) {

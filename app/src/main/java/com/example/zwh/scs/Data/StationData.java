@@ -48,7 +48,7 @@ public class StationData {
     private double hallLong = 113.020039;
     private double hallLati = 28.072556;
 
-    //行健轩右
+    //行健轩东
     private double xingJianLong = 113.017222;
     private double xingJianLati = 28.076003;
 
@@ -60,11 +60,26 @@ public class StationData {
     private double xueHuoLong = 113.014011;
     private double xueHuoLati = 28.075329;
 
+
+    public static String[] name={"东门","西门","南门","汀香","至诚轩一栋","工科一楼","文科楼"
+            ,"大会堂","行健轩东","甘怡园","学生活动中心"};
+    public static String[] add={"长沙理工大学云塘校区东门",
+            "长沙理工大学云塘校区西门"
+            ,"长沙理工大学云塘校区南门"
+            ,"长沙理工大学云塘校区汀香餐厅"
+            ,"长沙理工大学云塘校区至诚轩一栋楼"
+            ,"长沙理工大学云塘校区工科一楼"
+            ,"长沙理工大学云塘校区文科楼"
+            ,"长沙理工大学云塘校区大会堂"
+            ,"长沙理工大学云塘校区行健轩南约200米东"
+            ,"长沙理工大学云塘校区甘怡园餐厅"
+            ,"长沙理工大学云塘校区学生活动中心"};
     public StationData() {
         stationMarker = new ArrayList<>();
         //添加停车站点信息
         addStationData();
     }
+
 
     private void addStationData() {
         latLng = new LatLng(eastGateLati, eastGateLong);
