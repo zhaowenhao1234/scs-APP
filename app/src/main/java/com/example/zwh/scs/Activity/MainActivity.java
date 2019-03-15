@@ -33,12 +33,10 @@ import java.util.List;
 public class MainActivity extends BaseActivity implements View.OnClickListener {
     private static final String TAG = "MainActivity".getClass().getSimpleName();
     private static final int PERMISSION_REQUESTCODE = 1;
-
-
+    public static BaiduMap mBaidumap = null;
+    //布局view
     //地图模式状态标志
     private boolean mapMode;
-    //布局view
-
     private NavigationView navView;
     //    private Button user_message;
 //    private Button my_location;
@@ -46,10 +44,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     private Button mQRCodeScanner;
     private Button map_mode;
     private Button traffic_mode;
-
     //地图有关类
     private MapView mMapView = null;
-    public static BaiduMap mBaidumap = null;
     private LocationClient locationClient = null;
     private MyLocationListener myLocationListener = null;
 
@@ -63,10 +59,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setLayout(R.layout.activity_main);
         SDKInitializer();//在使用SDK各组件之前初始化context信息，传入ApplicationContext
         initActionBar();
         initContentView(R.layout.activity_main);
+        initToolbarView("SCXTAXING!!", true, R.mipmap.oc_black_list_user);
         permission();
         initView();//初始化视图
         initBaiduMap();//初始化百度地图

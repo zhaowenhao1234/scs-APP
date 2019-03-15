@@ -59,10 +59,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".Activity.LaunchActivity"></activity>
+        <activity android:name=".Activity.LaunchActivity" />
 
         <!-- <intent-filter> -->
         <!-- <action android:name="android.intent.action.MAIN" /> -->
+
 
         <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
         <!-- </intent-filter> -->
@@ -72,7 +73,9 @@
         <activity android:name=".Wallet.WithdrawActivity" />
         <activity android:name=".Wallet.DepositeActivity" />
         <activity android:name=".Wallet.Alipay.PayActivity" />
-        <activity android:name=".Activity.BaseActivity"></activity>
+        <activity android:name=".Activity.BaseActivity" />
+        <activity android:name=".Activity.MessageActivity" />
+        <activity android:name=".Activity.EditMsgActivity"></activity>
     </application>
 
 </manifest>

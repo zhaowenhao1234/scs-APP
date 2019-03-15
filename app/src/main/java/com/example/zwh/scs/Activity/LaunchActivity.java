@@ -1,14 +1,10 @@
 package com.example.zwh.scs.Activity;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.view.Window;
 import android.widget.ImageView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.DecodeFormat;
 import com.example.zwh.scs.R;
 import com.example.zwh.scs.Util.IntentUtils;
 

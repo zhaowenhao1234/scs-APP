@@ -34,19 +34,19 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class BaseActivity extends AppCompatActivity {
 
-    private static final int QR_REQUEST_CODE = 10086;
-    protected CircleImageView portraitImage;//更改头像
-    protected TextView emailText;//
     private DrawerLayout mDrawerLayout; //滑动菜单
     private NavigationView navView;
     private FrameLayout viewContent;
+    private static final int QR_REQUEST_CODE = 10086;
+    protected CircleImageView portraitImage;//更改头像
+    protected TextView emailText;//
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_base);
         StatusbarUtil.setTransparentWindow(this, true);
-        initView();
+        initToolbarView("SCSTaxing", true, R.mipmap.oc_black_list_user);
         ZXingLibrary.initDisplayOpinion(getApplicationContext());
     }
 
@@ -87,17 +87,17 @@ public class BaseActivity extends AppCompatActivity {
         return toolbar;
     }
 
-    private void initView() {
+    protected void initToolbarView(String titleString, boolean isShown, int iconid) {
         android.support.v7.widget.Toolbar toolbar = initToolbar(R.id.toolbar_activity_base,
-                R.id.toolbar_title, "SCSTaxing");
+                R.id.toolbar_title, titleString);
         setSupportActionBar(toolbar);
         mDrawerLayout = findViewById(R.id.drawer_layout_activity_base);
 
         initNavigationView();
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setHomeAsUpIndicator(R.mipmap.oc_black_list_user);
+            actionBar.setDisplayHomeAsUpEnabled(isShown);
+            actionBar.setHomeAsUpIndicator(iconid);
         }
         actionBar.setDisplayShowTitleEnabled(false);
     }
@@ -128,10 +128,13 @@ public class BaseActivity extends AppCompatActivity {
                         break;
                     case R.id.nav_payment:
                         IntentUtils.SetIntent(getApplication(), WalletActivity.class);
-                        mDrawerLayout.closeDrawers();
+                        //mDrawerLayout.closeDrawers();
                         break;
+                    case R.id.nav_msgboard:
+                        IntentUtils.SetIntent(getApplication(), MessageActivity.class);
+                        //mDrawerLayout.closeDrawers();
                     default:
-                        mDrawerLayout.closeDrawers();
+                        //mDrawerLayout.closeDrawers();
                         break;
                 }
                 return true;
@@ -196,4 +199,9 @@ public class BaseActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        menu.findItem(R.id.menu_newMeg).setVisible(false);
+        return true;
+    }
 }
