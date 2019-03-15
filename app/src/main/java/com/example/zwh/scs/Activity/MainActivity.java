@@ -1,13 +1,22 @@
 package com.example.zwh.scs.Activity;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Build;
+import android.annotation.SuppressLint;
+import android.content.ComponentName;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.AppCompatActivity;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -44,6 +53,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     private Button mQRCodeScanner;
     private Button map_mode;
     private Button traffic_mode;
+
+
     //地图有关类
     private MapView mMapView = null;
     private LocationClient locationClient = null;
@@ -54,7 +65,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 
     //地图标记集合
     private ArrayList<Marker> markerList = null;
-    private BitmapDescriptor bitmapDescriptor = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,6 +100,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 
         if (permissionLists.isEmpty()) {//说明肯定有拒绝的权限
             Toast.makeText(this, "权限全部授予", Toast.LENGTH_SHORT).show();
+            permissionLists.clear();
+            permissionLists = null;
         } else {
             String[] permissionss = permissionLists.toArray(new String[permissionLists.size()]);
             ActivityCompat.requestPermissions(this, permissionss, 1);
@@ -147,10 +159,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
      */
     private void initActionBar() {
         if (Build.VERSION.SDK_INT >= 21) {
-//            View decorView = getWindow().getDecorView();
-//            decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
             getWindow().setStatusBarColor(Color.TRANSPARENT);//仿百度地图
-//            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         }
     }
 
@@ -167,9 +176,12 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
      *created at 2019/3/6 18:20
      */
     private void initView() {
-        bitmapDescriptor = ImageUtil.setImage(this, R.drawable.bus_stop_board, 0.15f, 0.15f);
+
         //获取地图控件引用
         mMapView = findViewById(R.id.bmapView);
+        map_mode = (Button) findViewById(R.id.map_mode);
+        traffic_mode = (Button) findViewById(R.id.traffic_mode);
+        //notice = (Button) findViewById(R.id.notice);
         map_mode = findViewById(R.id.map_mode);
         traffic_mode = findViewById(R.id.traffic_mode);
 
@@ -289,6 +301,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
      *created at 2019/3/6 22:07
      */
     private void addMarker() {
+        //获得停车站点的图标
+        BitmapDescriptor bitmapDescriptor = ImageUtil.setImage(this, R.drawable.bus_stop_board, 0.15f, 0.15f);
         //获得停车站点经纬度集合
         StationData stationData = new StationData();
         //覆盖物实例集合
@@ -299,6 +313,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
             Marker marker = (Marker) mBaidumap.addOverlay(options);
             markerList.add(marker);
         }
+
+        bitmapDescriptor.recycle();
+        stationData = null;
     }
 
 
@@ -324,10 +341,12 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         yingYan.mTraceClient.stopGather(yingYan.mTraceListener);
         yingYan.mTraceClient.clear();
 
+        //关闭我的定位图层
+        mBaidumap.setMyLocationEnabled(false);
+
         //在activity执行onDestroy时执行mMapView.onDestroy()，实现地图生命周期管理
         mMapView.onDestroy();
         mMapView = null;
-        mBaidumap.setMyLocationEnabled(false);
 
         //注销位置监听
         locationClient.unRegisterLocationListener(myLocationListener);

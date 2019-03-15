@@ -18,11 +18,6 @@ public class LaunchActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_launch);
-//        launch_bg = (ImageView) findViewById(R.id.launch_bg);
-//        Glide.with(this)
-//                .asBitmap()
-//                .load(R.drawable.start)
-//                .into(launch_bg);
         //准备启动主活动
         waitForMainActivity();
     }
@@ -38,7 +33,7 @@ public class LaunchActivity extends AppCompatActivity {
             @Override
             public void run() {
                 try {
-                    Thread.sleep(3000);
+                    Thread.sleep(1000);
                     IntentUtils.SetIntent(LaunchActivity.this, MainActivity.class);
                     finish();
                 } catch (InterruptedException e) {
