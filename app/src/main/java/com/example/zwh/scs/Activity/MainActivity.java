@@ -247,7 +247,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         //定位服务的客户端。宿主程序在客户端声明此类，并调用，目前只支持在主线程中启动
         locationClient = new LocationClient(getApplicationContext());
         //实例化定位监听
-        myLocationListener = new MyLocationListener();
+        myLocationListener = new MyLocationListener(getApplicationContext());
         //注册监听函数
         locationClient.registerLocationListener(myLocationListener);
 
