@@ -41,8 +41,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * created at 2019/3/3 13:15 by wenhaoz
@@ -70,6 +73,7 @@ public class YingYan {
     public LBSTraceClient mTraceClient = null;  //实例化轨迹服务客户端
     private List<EntityInfo> entities = null;   //实体信息存储列表
     private List<Marker> markerList = null;     //marker存储列表
+    private ThreadPoolExecutor executor = null;
 
 
     private Handler handler = new Handler(Looper.getMainLooper(), new Handler.Callback() {
@@ -104,7 +108,9 @@ public class YingYan {
     public void initPara() {
         int gatherInterval = 2;//位置采集周期 (s)
         int packInterval = 10;//打包周期 (s)
-        cachedThreadPool = Executors.newCachedThreadPool();//绘制Marker的线程池
+        executor = new ThreadPoolExecutor(5, 10, 10, TimeUnit.MILLISECONDS,
+                new ArrayBlockingQueue<Runnable>(5), new ThreadPoolExecutor.CallerRunsPolicy());
+
         markerList = new ArrayList<>();                    //marker实例集合
         entities = new ArrayList<>();                      //实体信息集合
         entityName = GetIMEI.getImei(context);             //实体名称
@@ -214,15 +220,6 @@ public class YingYan {
             public void onEntityListCallback(EntityListResponse entityListResponse) {
                 entities = entityListResponse.getEntities();
                 handleEntitiesInfo();
-
-                Message message = Message.obtain();
-                message.what = QUERY_ENTITYLIST;
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        handler.sendMessage(message);
-                    }
-                }, 1000);
             }
 
 
@@ -323,7 +320,7 @@ public class YingYan {
         point.setLocTime(System.currentTimeMillis() / 1000);
         pointRequest.setPoint(point);
 
-        Toast.makeText(context,""+point.getLocation().toString(),Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, "" + point.getLocation().toString(), Toast.LENGTH_SHORT).show();
         //上传轨迹点
         mTraceClient.addPoint(pointRequest, trackListener);
 
@@ -360,18 +357,26 @@ public class YingYan {
                 com.baidu.trace.model.LatLng latLng = entityInfo.getLatestLocation().getLocation();
                 LatLng latLngConvert = new LatLng(latLng.getLatitude(), latLng.getLongitude());
 
-                //执行绘制线程
-                cachedThreadPool.execute(new Runnable() {
+                executor.execute(new Runnable() {
                     @Override
                     public void run() {
-                        Log.d(TAG, "run: "+latLngConvert.toString());
+                        Log.d(TAG, "run: " + latLngConvert.toString());
                         startMarkerAnimation(entityName, latLngConvert, direction);
                     }
                 });
             }
+            while (true) {
+                if (executor.getQueue().size() == 0) {
+                    Message message = Message.obtain();
+                    message.what = QUERY_ENTITYLIST;
+                    handler.sendMessage(message);
+                    break;
+                }
+            }
         } else {
             Toast.makeText(context, "未查询到在线的小白", Toast.LENGTH_SHORT).show();
         }
+
     }
 
     /***
@@ -400,7 +405,7 @@ public class YingYan {
      */
     private void startMarkerAnimation(String entityName, LatLng latLngConvert, int direction) {
 
-        Log.d(TAG, "startMarkerAnimation: "+entityName+" "+latLngConvert.toString());
+        Log.d(TAG, "startMarkerAnimation: " + entityName + " " + latLngConvert.toString());
         if (markerList.size() == 0) {
             addMarker(entityName, latLngConvert, direction);
         } else {
@@ -428,7 +433,7 @@ public class YingYan {
                                 AnimationSet set = new AnimationSet();
                                 set.addAnimation(rotateAnimation);
                                 set.addAnimation(transformation);
-                                set.setDuration(500);
+                                set.setDuration(100);
                                 set.setAnimatorSetMode(0);
 
                                 marker.setAnimation(set);

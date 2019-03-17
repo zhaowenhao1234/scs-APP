@@ -34,11 +34,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private EditText passwordEditl;
     private Button login;
     private TextView responseText;
-private Handler handler = new Handler(new Handler.Callback() {
+    private Handler handler = new Handler(new Handler.Callback() {
         @Override
-    public boolean handleMessage(Message msg) {
-    responseText.setText(msg.obj.toString());
-     Code= jsonToJsonObject(msg.obj.toString());
+        public boolean handleMessage(Message msg) {
+            responseText.setText(msg.obj.toString());
+            Code = jsonToJsonObject(msg.obj.toString());
             if (Code.equals("100")) {
                 Toast.makeText(LoginActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
             } else {
