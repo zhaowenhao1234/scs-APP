@@ -1,4 +1,4 @@
-package com.example.zwh.scs.model;
+package com.example.zwh.scs.Bean;
 
 /**
  * created at 2019/3/17 13:43 by wenhaoz
