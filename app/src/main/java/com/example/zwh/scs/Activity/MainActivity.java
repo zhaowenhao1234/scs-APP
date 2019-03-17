@@ -97,23 +97,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
      *created at 2019/2/25 19:45
      */
     private void permission() {
-        //位置采集周期
-        // 在Android 6.0及以上系统，若定制手机使用到doze模式，请求将应用添加到白名单。
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            Context trackApp = getApplicationContext();
-            String packageName = trackApp.getPackageName();
-            PowerManager powerManager = (PowerManager) trackApp.getSystemService(Context.POWER_SERVICE);
-            boolean isIgnoring = powerManager.isIgnoringBatteryOptimizations(packageName);
-            if (!isIgnoring) {
-                Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
-                intent.setData(Uri.parse("package:" + packageName));
-                try {
-                    startActivity(intent);
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            }
-        }
+
         String[] permissions = new String[]{Manifest.permission.CALL_PHONE, Manifest.permission.READ_PHONE_STATE, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.CAMERA};
 
         List<String> permissionLists = new ArrayList<>();
@@ -133,6 +117,24 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         } else {
             String[] permissionss = permissionLists.toArray(new String[permissionLists.size()]);
             ActivityCompat.requestPermissions(this, permissionss, 1);
+        }
+
+        //位置采集周期
+        // 在Android 6.0及以上系统，若定制手机使用到doze模式，请求将应用添加到白名单。
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Context trackApp = getApplicationContext();
+            String packageName = trackApp.getPackageName();
+            PowerManager powerManager = (PowerManager) trackApp.getSystemService(Context.POWER_SERVICE);
+            boolean isIgnoring = powerManager.isIgnoringBatteryOptimizations(packageName);
+            if (!isIgnoring) {
+                Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+                intent.setData(Uri.parse("package:" + packageName));
+                try {
+                    startActivity(intent);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
         }
     }
 
@@ -244,6 +246,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 
         //定位服务的客户端。宿主程序在客户端声明此类，并调用，目前只支持在主线程中启动
         locationClient = new LocationClient(getApplicationContext());
+        //实例化定位监听
+        myLocationListener = new MyLocationListener();
+        //注册监听函数
+        locationClient.registerLocationListener(myLocationListener);
 
         //声明LocationClient类实例并配置定位参数
         LocationClientOption locationOption = new LocationClientOption();
@@ -263,13 +269,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         locationOption.setIsNeedLocationPoiList(true);
         //设置是否打开GPS
         locationOption.setOpenGps(true);
+
+
         //需将配置好的LocationClientOption对象，通过setLocOption方法传递给LocationClient对象使用
         locationClient.setLocOption(locationOption);
-
-        //实例化定位监听
-        myLocationListener = new MyLocationListener();
-        //注册监听函数
-        locationClient.registerLocationListener(myLocationListener);
 
         //开始定位
         locationClient.start();

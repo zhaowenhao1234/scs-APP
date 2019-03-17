@@ -39,12 +39,14 @@ public class MyLocationListener extends BDAbstractLocationListener {
     @Override
     public void onReceiveLocation(BDLocation bdLocation) {
         this.location = bdLocation;
+        Log.d(TAG, "onReceiveLocation: "+bdLocation.getLocTypeDescription());
         //如果位置为空的话变现实北京地图
-        if (getMyAddressDescription() == null) {
+        if (bdLocation.getAdCode() == null) {
             LatLng latLng = new LatLng(39.914935, 116.403694);
             MapStatusUpdate update = MapStatusUpdateFactory.newLatLngZoom(latLng, 17);
             MainActivity.mBaidumap.animateMapStatus(update);
         } else {
+
             //得到当前位置描述
             getMyAddressDescription();
             //获得我的数据信息
