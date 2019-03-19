@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -30,6 +29,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     String str_username = "";//获取用户名
     String str_password = "";//用户密码
     String Code;//服务器返回的值
+    public static String trueUserName = "";
     private EditText accountEditl;
     private EditText passwordEditl;
     private Button login;
@@ -41,6 +41,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             Code = jsonToJsonObject(msg.obj.toString());
             if (Code.equals("100")) {
                 Toast.makeText(LoginActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
+                trueUserName = str_username;
             } else {
                 Toast.makeText(LoginActivity.this, "登录失败", Toast.LENGTH_SHORT).show();
             }

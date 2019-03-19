@@ -9,7 +9,7 @@
         app:showAsAction="always" />
     <item
         android:id="@+id/menu_newMeg"
-        android:icon="@mipmap/baseline_question_answer_black_36dp"
+        android:icon="@mipmap/baseline_check_black_36dp"
         android:title="新留言"
         app:showAsAction="always" />
 
