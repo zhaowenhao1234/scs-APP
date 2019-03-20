@@ -65,7 +65,7 @@
                 android:layout_height="wrap_content"
                 android:textColor="#44bce8"
                 android:background="#00000000"
-                android:textSize="18dp"
+                android:textSize="18sp"
                 android:text="司机"
                 />
             <RadioButton
@@ -75,7 +75,7 @@
                 android:layout_height="wrap_content"
                 android:textColor="#44bce8"
                 android:background="#00000000"
-                android:textSize="18dp"
+                android:textSize="18sp"
                 android:text="乘客"
                 />
 
@@ -92,7 +92,7 @@
             android:textColor="#FFFFFF"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="45dp"
-            android:textSize="20dp"
+            android:textSize="20sp"
             android:text="登录" />
 
 
@@ -107,7 +107,7 @@
         android:textColor="#44bce8"
         android:background="#00000000"
         android:layout_marginTop="330dp"
-        android:textSize="18dp"
+        android:textSize="15sp"
         android:text="新用户注册" />
 
 

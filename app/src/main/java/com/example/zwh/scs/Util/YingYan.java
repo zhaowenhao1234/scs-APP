@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.text.TextPaint;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -33,6 +34,7 @@ import com.baidu.trace.model.OnTraceListener;
 import com.baidu.trace.model.Point;
 import com.baidu.trace.model.ProtocolType;
 import com.baidu.trace.model.PushMessage;
+import com.baidu.trace.model.StatusCodes;
 import com.example.zwh.scs.Activity.MainActivity;
 import com.example.zwh.scs.Listener.MyLocationListener;
 import com.example.zwh.scs.R;
@@ -58,7 +60,6 @@ public class YingYan {
     private final int UPDATE_DIRECTION = 2;
     //上下文
     private Context context;
-    private ExecutorService cachedThreadPool = null;
 
     //鹰眼服务监听器
     public OnTraceListener mTraceListener;
@@ -68,6 +69,7 @@ public class YingYan {
     //鹰眼轨迹相关参数
     private String entityName;  // entity标识
     private long serviceId;     //鹰眼服务ID
+    private int userInfo;
 
     public Trace mTrace = null;                //鹰眼服务
     public LBSTraceClient mTraceClient = null;  //实例化轨迹服务客户端
@@ -95,6 +97,7 @@ public class YingYan {
     //构造函数
     public YingYan(Context context) {
         this.context = context;
+
         initListener();     //初始化监听器
         initPara();        //初始化各项参数
     }
@@ -106,26 +109,34 @@ public class YingYan {
      *created at 2019/3/3 12:37
      */
     public void initPara() {
-        int gatherInterval = 2;//位置采集周期 (s)
-        int packInterval = 10;//打包周期 (s)
-        executor = new ThreadPoolExecutor(5, 10, 10, TimeUnit.MILLISECONDS,
-                new ArrayBlockingQueue<Runnable>(5), new ThreadPoolExecutor.CallerRunsPolicy());
 
-        markerList = new ArrayList<>();                    //marker实例集合
-        entities = new ArrayList<>();                      //实体信息集合
-        entityName = GetIMEI.getImei(context);             //实体名称
-        serviceId = 209693;                                //鹰眼服务ID
+        userInfo = UserInfoUtil.getCurrentInfoUserName(context);
+        Log.d(TAG, "initPara: "+userInfo);
+        if (userInfo == 0) {
+            Toast.makeText(context, "请注册或登录后使用", Toast.LENGTH_SHORT).show();
+            return;
+        } else {
+            int gatherInterval = 2;//位置采集周期 (s)
+            int packInterval = 10;//打包周期 (s)
+            executor = new ThreadPoolExecutor(5, 10, 10, TimeUnit.MILLISECONDS, new ArrayBlockingQueue<Runnable>(5), new ThreadPoolExecutor.CallerRunsPolicy());
 
-        //实例化轨迹服务
-        mTrace = new Trace(serviceId, entityName, false);
-        // 初始化轨迹服务客户端
-        mTraceClient = new LBSTraceClient(context);
-        //设置位置采集和打包周期
-        mTraceClient.setInterval(gatherInterval, packInterval);
-        //设置协议类型 http 或 https
-        mTraceClient.setProtocolType(ProtocolType.HTTP);
-        // 开启服务
-        mTraceClient.startTrace(mTrace, mTraceListener);
+            markerList = new ArrayList<>();                    //marker实例集合
+            entities = new ArrayList<>();                      //实体信息集合
+            entityName = GetIMEI.getImei(context);             //实体名称
+
+            serviceId = 209693;                                //鹰眼服务ID
+
+            //实例化轨迹服务
+            mTrace = new Trace(serviceId, entityName, false);
+            // 初始化轨迹服务客户端
+            mTraceClient = new LBSTraceClient(context);
+            //设置位置采集和打包周期
+            mTraceClient.setInterval(gatherInterval, packInterval);
+            //设置协议类型 http 或 https
+            mTraceClient.setProtocolType(ProtocolType.HTTP);
+            // 开启服务
+            mTraceClient.startTrace(mTrace, mTraceListener);
+        }
     }
 
     /***
@@ -163,12 +174,16 @@ public class YingYan {
             @Override
             public void onStartGatherCallback(int i, String s) {
                 if (i == QUERY_SUCCESS) {
-                    //初次将当前的entity设备信息上传到鹰眼服务
-                    upLoadMyEntity();
-
+                    if (userInfo == 1) {
+                        //初次将当前的entity设备信息上传到鹰眼服务
+                        upLoadMyEntity();
+                    } else if(userInfo == 2) {
+                        //若用户不是司机直接查询
+                        queryEntityList();
+                    }
+                } else {
+                    Toast.makeText(context, "采集服务开启失败！", Toast.LENGTH_SHORT).show();
                 }
-                //开启子线程实时更新方向
-                updateDirection();
             }
 
             @Override
@@ -227,16 +242,15 @@ public class YingYan {
             @Override
             public void onAddEntityCallback(AddEntityResponse addEntityResponse) {
                 if (addEntityResponse.status == 3005) {
-                    updateEntity();
+                    Toast.makeText(context, "上传车辆信息成功！", Toast.LENGTH_SHORT).show();
+                    //开启子线程实时更新方向
+                    updateDirection();
+                } else {
+                    Toast.makeText(context, "上传车辆信息失败，尝试再次上传！", Toast.LENGTH_SHORT).show();
+                    upLoadMyEntity();
                 }
-                queryEntityList();
             }
 
-            @Override
-            public void onUpdateEntityCallback(UpdateEntityResponse updateEntityResponse) {
-                //查询当前鹰眼服务中的设备实时位置
-                queryEntityList();
-            }
         };
     }
 
@@ -248,15 +262,7 @@ public class YingYan {
     public void queryEntityList() {
         //创建请求
         EntityListRequest request = new EntityListRequest(entityName.hashCode(), serviceId);
-        //进行筛选 获得司机列表
-        FilterCondition filterCondition = new FilterCondition();
-        HashMap<String, String> map = new HashMap<>();
-        map.put("is_taxi", "taxi");
-        filterCondition.setColumns(map);
-        request.setFilterCondition(filterCondition);
-        //发起请求
         mTraceClient.queryEntityList(request, entityListener);
-
     }
 
     /***
@@ -270,28 +276,9 @@ public class YingYan {
         addEntityRequest.setTag(entityName.hashCode());
         addEntityRequest.setServiceId(serviceId);
         addEntityRequest.setEntityName(entityName);
-        Map<String, String> map = new HashMap();
-        map.put("is_taxi", "taxi");
-        addEntityRequest.setColumns(map);
         mTraceClient.addEntity(addEntityRequest, entityListener);
     }
 
-    /***
-     *更新设备信息
-     *@return void
-     *@author wenhaoz
-     *created at 2019/3/12 19:29
-     */
-    private void updateEntity() {
-        UpdateEntityRequest updateEntityRequest = new UpdateEntityRequest();
-        updateEntityRequest.setTag(entityName.hashCode());
-        updateEntityRequest.setServiceId(serviceId);
-        updateEntityRequest.setEntityName(entityName);
-        Map<String, String> map = new HashMap();
-        map.put("is_taxi", "taxi");
-        updateEntityRequest.setColumns(map);
-        mTraceClient.updateEntity(updateEntityRequest, entityListener);
-    }
 
     /***
      *更新当前设备方向信息
@@ -360,7 +347,6 @@ public class YingYan {
                 executor.execute(new Runnable() {
                     @Override
                     public void run() {
-                        Log.d(TAG, "run: " + latLngConvert.toString());
                         startMarkerAnimation(entityName, latLngConvert, direction);
                     }
                 });
@@ -405,7 +391,6 @@ public class YingYan {
      */
     private void startMarkerAnimation(String entityName, LatLng latLngConvert, int direction) {
 
-        Log.d(TAG, "startMarkerAnimation: " + entityName + " " + latLngConvert.toString());
         if (markerList.size() == 0) {
             addMarker(entityName, latLngConvert, direction);
         } else {

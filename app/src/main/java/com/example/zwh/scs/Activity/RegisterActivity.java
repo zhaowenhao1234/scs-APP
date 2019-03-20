@@ -11,7 +11,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.zwh.scs.R;
@@ -20,6 +19,8 @@ import com.example.zwh.scs.Util.StatusbarUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.IOException;
 
 import okhttp3.Call;
 import okhttp3.FormBody;
@@ -30,12 +31,12 @@ import okhttp3.Response;
 
 public class RegisterActivity extends AppCompatActivity implements View.OnClickListener, RadioGroup.OnCheckedChangeListener {
 
-    String str1 = "";//获取用户名
-    String str2 = "";//获取用户密码
-    String str3 = "";//获取用户电话号码
-    String str4 = "";//获取验证码
-    String code = "";//返回服务器的值
-    // private TextView responseTextr;
+    private String str1 = "";//获取用户名
+    private String str2 = "";//获取用户密码
+    private String str3 = "";//获取用户电话号码
+    private String str4 = "";//获取验证码
+    private String code = "";//返回服务器的值
+
     private EditText editText_accountr;//注意实例化的位置
     private EditText editText_passwordr;//
     private Button securityCode;
@@ -44,17 +45,31 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     private Button jumpToMainr;
     private EditText validcheck;
     private RadioGroup radio_group;
-    int flag=0;
+    int flag = 0;
     private Handler handler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
-
             code = jsonToJsonObject(msg.obj.toString());
-            if (code.equals("0")) {
-                Toast.makeText(RegisterActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(RegisterActivity.this, "登录失败", Toast.LENGTH_SHORT).show();
+            switch (msg.arg1) {
+                case 1:
+                    if (code.equals("0")) {
+                        Toast.makeText(RegisterActivity.this, "验证码获取成功", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(RegisterActivity.this, "验证码获取失败"+code, Toast.LENGTH_SHORT).show();
+                    }
+                    break;
+                case 2:
+                    Log.d("123456789", "handleMessage: "+code);
+                    if (code.equals("0")) {
+                        Toast.makeText(RegisterActivity.this, "注册成功", Toast.LENGTH_SHORT).show();
+                        finish();
+                    } else {
+                        Toast.makeText(RegisterActivity.this, "注册失败", Toast.LENGTH_SHORT).show();
+                    }
+                    break;
             }
+
+
             return true;
         }
     });
@@ -76,17 +91,26 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+        initView();
+    }
+
+    /***
+     *布局初始化
+     *@return void
+     *@author wenhaoz
+     *created at 2019/3/20 18:27
+     */
+    private void initView() {
         StatusbarUtil.setTransparentWindow(this, false);
         register = findViewById(R.id.register_btn);
         editText_accountr = findViewById(R.id.account_register);//须再onCreate里实例化
         editText_passwordr = findViewById(R.id.password_register);//须再onCreate里实例化
-        //  responseTextr = findViewById(R.id.response_text);
         jumpToMainr = findViewById(R.id.jumpToMainr);
         securityCode = findViewById(R.id.securityCode);
-        radio_group=findViewById(R.id.radio_group);
+        radio_group = findViewById(R.id.radio_group);
         phoneNumber = findViewById(R.id.phoneNumber);
         validcheck = findViewById(R.id.validcheck);
-        securityCode.setText("获取"+'\n'+"验证码");
+        securityCode.setText("获取验证码");
         register.setOnClickListener(this);
         jumpToMainr.setOnClickListener(this);
         securityCode.setOnClickListener(this);
@@ -95,7 +119,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
     private void sendRequestWithOkHttp_validCheck() {
 
-        String str="";
+        String str = "";
         str = phoneNumber.getText().toString();//获取用户电话号码
 
         String finalStr = str;
@@ -109,11 +133,9 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                     Call call = client.newCall(request);
                     Response response = call.execute();
                     Message message = handler.obtainMessage();
+                    message.arg1 = 1;
                     message.obj = response.body().string();
                     handler.sendMessage(message);
-                    Log.d("电话号码", finalStr);
-                    //String responseData = response.body().string();//这一句代码在方法体里面只能用一次(包括打印输出的使用)
-                    // showResponse(responseData);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -121,9 +143,6 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         }).start();
 
     }
-
-
-
 
 
     private void sendRequestWithOkHttp() {
@@ -135,8 +154,6 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
         String str5 = "";
         str5 = MD5Utils.encode(str2);
-        Toast.makeText(RegisterActivity.this, str2, Toast.LENGTH_SHORT).show();
-        //Toast.makeText(RegisterActivity.this, str4,Toast.LENGTH_SHORT).show();
 
         final String finalStr = str5;
 
@@ -145,35 +162,14 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
             @Override
             public void run() {
                 try {
-                    if(flag==1){
-                        OkHttpClient client = new OkHttpClient();
-                        RequestBody responseBody = new FormBody.Builder().add("nickName", str1)
-                                .add("password", finalStr)
-                                .add("phoneNumber",str3)
-                                .add("validateNum",str4).build();
-                        Request request = new Request.Builder().url("http://129.204.119.172:8080/driver/register").post(responseBody).build();
-                        Call call = client.newCall(request);
-                        Response response = call.execute();
-                        Message message = handler.obtainMessage();
-                        message.obj = response.body().string();
-                        handler.sendMessage(message);
-                        //String responseData = response.body().string();//这一句代码在方法体里面只能用一次(包括打印输出的使用)
-                        // showResponse(responseData);
 
-                    }else if(flag==2){
-                        OkHttpClient client = new OkHttpClient();
-                        RequestBody responseBody = new FormBody.Builder().add("nickName", str1)
-                                .add("password", finalStr)
-                                .add("phoneNumber",str3)
-                                .add("validateNum",str4).build();
-                        Request request = new Request.Builder().url("http://129.204.119.172:8080/user/register").post(responseBody).build();
-                        Call call = client.newCall(request);
-                        Response response = call.execute();
-                        Message message = handler.obtainMessage();
-                        message.obj = response.body().string();
-                        handler.sendMessage(message);
-                        //String responseData = response.body().string();//这一句代码在方法体里面只能用一次(包括打印输出的使用)
-                        // showResponse(responseData);
+                    if (flag == 1) {
+                        String url = "http://129.204.119.172:8080/driver/register";
+                        requestHttp(url, finalStr);
+
+                    } else if (flag == 2) {
+                        String url = "http://129.204.119.172:8080/user/register";
+                        requestHttp(url, finalStr);
                     }
 
                 } catch (Exception e) {
@@ -184,18 +180,37 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
     }
 
+    /***
+     *联网注册请求
+     *@return void
+     *@author wenhaoz
+     *created at 2019/3/20 18:50
+     */
+    private void requestHttp(String url, String finalStr) throws IOException {
+        OkHttpClient client = new OkHttpClient();
+        RequestBody responseBody = new FormBody.Builder().add("nickName", str1).add("password", finalStr).add("phoneNumber", str3).add("validateNum", str4).build();
+        Request request = new Request.Builder().url(url).post(responseBody).build();
+        Call call = client.newCall(request);
+        Response response = call.execute();
+        Message message = handler.obtainMessage();
+        message.obj = response.body().string();
+        message.arg1 = 2;
+        handler.sendMessage(message);
+    }
+
     @Override
     public void onClick(View v) {
-
-
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.securityCode:
-                sendRequestWithOkHttp_validCheck();break;
+                sendRequestWithOkHttp_validCheck();
+                break;
             case R.id.register_btn:
-                sendRequestWithOkHttp();break;
-            case R.id.jumpToMainr:{
-                Intent intent =new Intent(RegisterActivity.this,LoginActivity.class);
-                startActivity(intent);break;
+                sendRequestWithOkHttp();
+                break;
+            case R.id.jumpToMainr: {
+                Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                startActivity(intent);
+                break;
             }
 
         }
@@ -203,24 +218,17 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
     }
 
-    private void showResponse(final String responseData) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                // responseTextr.setText(responseData);
-                Log.d("123", "run: responseData" + responseData);
-            }
-        });
-    }
 
     @Override
     public void onCheckedChanged(RadioGroup group, int checkedId) {
-        flag=0;
-        switch (checkedId){
+        flag = 0;
+        switch (checkedId) {
             case R.id.driverP:
-                flag=1;
+                flag = 1;
+                break;
             case R.id.userP:
-                flag=2;
+                flag = 2;
+                break;
         }
     }
 }

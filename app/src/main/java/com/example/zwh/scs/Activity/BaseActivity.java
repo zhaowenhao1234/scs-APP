@@ -110,7 +110,11 @@ public class BaseActivity extends AppCompatActivity {
         portraitImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                IntentUtils.SetIntent(getApplicationContext(), LoginActivity.class);
+                if(MainActivity.isLogin){
+                    IntentUtils.SetIntent(getApplicationContext(), PersonalActivity.class);
+                }else{
+                    IntentUtils.SetIntent(getApplicationContext(), LoginActivity.class);
+                }
             }
         });
         WindowManager wm = this.getWindowManager();

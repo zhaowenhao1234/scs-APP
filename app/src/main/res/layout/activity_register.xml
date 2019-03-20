@@ -78,7 +78,7 @@
                 android:layout_marginLeft="2dp"
                 android:background="@color/blue"
                 android:textColor="#FFFFFF"
-                android:textSize="12dp" />
+                android:textSize="12sp" />
 
         </LinearLayout>
 
@@ -117,7 +117,7 @@
             android:background="#00000000"
             android:text="司机"
             android:textColor="#44bce8"
-            android:textSize="18dp" />
+            android:textSize="18sp" />
 
         <RadioButton
             android:id="@+id/userP"
@@ -127,14 +127,14 @@
             android:background="#00000000"
             android:text="乘客"
             android:textColor="#44bce8"
-            android:textSize="18dp" />
+            android:textSize="18sp" />
 
     </RadioGroup>
     <Button
         android:id="@+id/register_btn"
         android:layout_marginTop="480dp"
         android:text="注册"
-        android:textSize="28dp"
+        android:textSize="28sp"
         android:background="@color/blue"
         android:textColor="#FFFFFF"
         android:layout_width="290dp"

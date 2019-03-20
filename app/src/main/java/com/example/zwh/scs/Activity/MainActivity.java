@@ -47,6 +47,10 @@ import com.example.zwh.scs.R;
 import com.example.zwh.scs.Util.ImageUtil;
 import com.example.zwh.scs.Util.YingYan;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,6 +58,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     private static final String TAG = "MainActivity".getClass().getSimpleName();
     private static final int PERMISSION_REQUESTCODE = 1;
     public static BaiduMap mBaidumap = null;
+    public static boolean isLogin;
     //布局view
     //地图模式状态标志
     private boolean mapMode;
@@ -81,6 +86,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //setMapCustomFile(this, "custom_config_0323-darkNight.json");
+        MapView.setMapCustomEnable(true);
         SDKInitializer();//在使用SDK各组件之前初始化context信息，传入ApplicationContext
         initActionBar();
         initContentView(R.layout.activity_main);
@@ -89,6 +96,45 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         initView();//初始化视图
         initBaiduMap();//初始化百度地图
     }
+
+//    /**
+//     * 将个性化文件写入本地后调用MapView.setCustomMapStylePath加载
+//     *
+//     * @param fileName
+//     *         assets目录下自定义样式文件的文件名
+//     */
+//    private void setMapCustomFile(Context context, String fileName) {
+//        InputStream inputStream = null;
+//        FileOutputStream fileOutputStream = null;
+//        String moduleName = null;
+//        try {
+//            inputStream = context.getAssets().open("customConfigDir/" + fileName);
+//            byte[] b = new byte[inputStream.available()];
+//            inputStream.read(b);
+//            moduleName = context.getFilesDir().getAbsolutePath();
+//            File file = new File(moduleName + "/" + fileName);
+//            if (file.exists()) file.delete();
+//            file.createNewFile();
+//            fileOutputStream = new FileOutputStream(file);
+//            //将自定义样式文件写入本地
+//            fileOutputStream.write(b);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        } finally {
+//            try {
+//                if (inputStream != null) {
+//                    inputStream.close();
+//                }
+//                if (fileOutputStream != null) {
+//                    fileOutputStream.close();
+//                }
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//        //设置自定义样式文件
+//        MapView.setCustomMapStylePath(moduleName + "/" + fileName);
+//    }
 
     /***
      *请求权限
@@ -209,6 +255,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 
         //获取地图控件引用
         mMapView = findViewById(R.id.bmapView);
+
         map_mode = (Button) findViewById(R.id.map_mode);
         traffic_mode = (Button) findViewById(R.id.traffic_mode);
         map_mode = findViewById(R.id.map_mode);
@@ -217,7 +264,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 
         //获得baidumap实例
         mBaidumap = mMapView.getMap();
-
         my_location = findViewById(R.id.my_location);
         traffic_mode = findViewById(R.id.traffic_mode);
         openYingYan = findViewById(R.id.openYingYan);
@@ -331,7 +377,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     @Override
     protected void onDestroy() {
         //注销所有鹰眼相关服务
-        yingYan.mTraceClient.stopTrace(yingYan.mTrace, yingYan.mTraceListener);
+        //yingYan.mTraceClient.stopTrace(yingYan.mTrace, yingYan.mTraceListener);
         yingYan.mTraceClient.stopGather(yingYan.mTraceListener);
         yingYan.mTraceClient.clear();
 

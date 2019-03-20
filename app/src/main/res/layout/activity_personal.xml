@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".Activity.PersonalActivity">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="#ffffff">
+        <TextView
+            android:text="个人资料"
+            android:textSize="25sp"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <Button
+            android:id="@+id/back"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="2dp"
+            android:layout_gravity="center_vertical"
+            android:background="@mipmap/back" />
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="7"
+        android:orientation="vertical">
+
+
+        <Button
+            android:id="@+id/head_img"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:background="@drawable/button_bg"
+            android:gravity="left|center"
+            android:text="头像"
+            android:textSize="18sp" />
+
+        <Button
+            android:id="@+id/nick_name"
+            android:layout_width="match_parent"
+            android:layout_height="75dp"
+            android:background="@drawable/button_bg"
+            android:gravity="left|center"
+            android:text="昵称"
+            android:textSize="18sp" />
+
+        <Button
+            android:id="@+id/sex"
+            android:layout_width="match_parent"
+            android:layout_height="75dp"
+            android:background="@drawable/button_bg"
+            android:gravity="left|center"
+            android:text="性别"
+
+            android:textSize="18sp" />
+
+        <Button
+            android:id="@+id/birth_time"
+            android:layout_width="match_parent"
+            android:layout_height="75dp"
+            android:background="@drawable/button_bg"
+            android:gravity="left|center"
+            android:text="生日"
+            android:textSize="18sp" />
+
+        <Button
+            android:id="@+id/grade"
+            android:layout_width="match_parent"
+            android:layout_height="75dp"
+            android:background="@drawable/button_bg"
+            android:gravity="left|center"
+            android:text="年级"
+
+            android:textSize="18sp" />
+
+        <Button
+            android:id="@+id/address"
+            android:layout_width="match_parent"
+            android:layout_height="75dp"
+            android:background="@drawable/button_bg"
+            android:gravity="left|center"
+            android:text="地址"
+            android:textSize="18sp" />
+    </LinearLayout>
+
+
+    <Button
+        android:id="@+id/login_out"
+        android:layout_marginTop="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_margin="5dp"
+        android:layout_gravity="bottom"
+        android:background="@drawable/logout_shape"
+        android:gravity="center"
+        android:text="退出登录"
+        android:textColor="#ffffff"
+        android:textSize="25dp" />
+
+
+</LinearLayout>
+
+
