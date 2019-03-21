@@ -50,7 +50,6 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     private Handler handler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
-            Log.d("5443", "handleMessage: "+msg.obj.toString());
             code = jsonToJsonObject(msg.obj.toString());
             switch (msg.arg1) {
                 case 1:
@@ -187,7 +186,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
      */
     private void requestHttp(String url, String finalStr) throws IOException {
         OkHttpClient client = new OkHttpClient();
-        FormBody responseBody = null;
+        RequestBody responseBody = null;
         if(flag == 1){
             responseBody = new FormBody.Builder()
                     .add("name", str1)

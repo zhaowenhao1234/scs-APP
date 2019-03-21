@@ -52,11 +52,12 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private Handler handler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
+            Log.d("123456", "handleMessage: "+msg.obj.toString());
             code = jsonToJsonObject(msg.obj.toString());
             if (code.equals("0")) {
                 MainActivity.isLogin = true;
                 //保存当前信息
-                UserInfoUtil.saveCurrentInfo(getApplicationContext(),msg.arg1,str_username);
+                UserInfoUtil.saveCurrentInfo(getApplicationContext(), msg.arg1, str_username);
 
                 Toast.makeText(LoginActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
                 finish();
@@ -66,7 +67,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             return true;
         }
     });
-
 
 
     @Override
@@ -81,12 +81,12 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     /***
-    *初始化布局
-    *@param
-    *@return void
-    *@author wenhaoz
-    *created at 2019/3/19 23:13
-    */
+     *初始化布局
+     *@param
+     *@return void
+     *@author wenhaoz
+     *created at 2019/3/19 23:13
+     */
     private void initView() {
         MainActivity.isLogin = false;
         accountEditl = findViewById(R.id.accountl);
@@ -135,12 +135,12 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         new Thread(new Runnable() {
             @Override
             public void run() {
-                Log.d("123456", "run: "+flag);
+                Log.d("123456", "run: " + flag);
                 try {
                     if (flag == DRIVER_OPTION) {
-                        requestNet(finalStr_password_MD, "http://129.204.119.172:8080/driver/login",DRIVER_OPTION);
+                        requestNet(finalStr_password_MD, "http://129.204.119.172:8080/driver/login", DRIVER_OPTION);
                     } else if (flag == USER_OPTION) {
-                        requestNet(finalStr_password_MD, "http://129.204.119.172:8080/user/login",USER_OPTION);
+                        requestNet(finalStr_password_MD, "http://129.204.119.172:8080/user/login", USER_OPTION);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -150,17 +150,18 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     /***
-    *网络请求
-    *@return void
-    *@author wenhaoz
-    *created at 2019/3/19 23:17
-    */
+     *网络请求
+     *@return void
+     *@author wenhaoz
+     *created at 2019/3/19 23:17
+     */
     private void requestNet(String finalStr_password_MD, String s, int option) throws IOException {
         OkHttpClient client = new OkHttpClient();
         RequestBody responseBody = null;
-        if(flag == DRIVER_OPTION){
+        if (option == DRIVER_OPTION) {
             responseBody = new FormBody.Builder().add("name", str_username).add("password", finalStr_password_MD).build();
-        }else if(flag == USER_OPTION){
+        } else if (option == USER_OPTION) {
+            Log.d("123456", "requestNet: "+123456);
             responseBody = new FormBody.Builder().add("nick_name", str_username).add("password", finalStr_password_MD).build();
 
         }
@@ -174,11 +175,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     /***
-    *解析状态码
-    *@return java.lang.String
-    *@author wenhaoz
-    *created at 2019/3/19 23:18
-    */
+     *解析状态码
+     *@return java.lang.String
+     *@author wenhaoz
+     *created at 2019/3/19 23:18
+     */
     public String jsonToJsonObject(String json) {
         String code = "";
         try {
