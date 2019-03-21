@@ -27,7 +27,6 @@ public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.ViewHolder> {
 
     public void updateData(List<MsgItem> data) {
         this.msgList = data;
-        notifyDataSetChanged();
     }
 
     @NonNull

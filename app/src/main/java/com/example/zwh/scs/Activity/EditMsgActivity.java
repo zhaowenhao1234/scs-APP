@@ -1,5 +1,6 @@
 package com.example.zwh.scs.Activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -47,6 +48,8 @@ public class EditMsgActivity extends BaseActivity {
 
             case R.id.menu_newMeg:
                 sendMsgWithOkhttp();
+                Intent data = new Intent();
+                setResult(2, data);
                 finish();
                 break;
 

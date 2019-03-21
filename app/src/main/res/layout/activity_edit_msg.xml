@@ -3,16 +3,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <EditText
+    <EditText
             android:id="@+id/et_editMsg"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+        android:gravity="start"
+        android:inputType="textMultiLine"
             android:hint="请输入留言内容" />
-
-    </ScrollView>
 
 </LinearLayout>
