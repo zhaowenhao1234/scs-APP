@@ -59,6 +59,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     private static final int PERMISSION_REQUESTCODE = 1;
     public static BaiduMap mBaidumap = null;
     public static boolean isLogin;
+
     //布局view
     //地图模式状态标志
     private boolean mapMode;
@@ -87,7 +88,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //setMapCustomFile(this, "custom_config_0323-darkNight.json");
-        MapView.setMapCustomEnable(true);
+        //MapView.setMapCustomEnable(true);
         SDKInitializer();//在使用SDK各组件之前初始化context信息，传入ApplicationContext
         initActionBar();
         initContentView(R.layout.activity_main);

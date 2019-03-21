@@ -28,6 +28,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 public class RegisterActivity extends AppCompatActivity implements View.OnClickListener, RadioGroup.OnCheckedChangeListener {
 
@@ -49,6 +50,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     private Handler handler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
+            Log.d("5443", "handleMessage: "+msg.obj.toString());
             code = jsonToJsonObject(msg.obj.toString());
             switch (msg.arg1) {
                 case 1:
@@ -119,16 +121,14 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
     private void sendRequestWithOkHttp_validCheck() {
 
-        String str = "";
-        str = phoneNumber.getText().toString();//获取用户电话号码
+        String phoneStr = phoneNumber.getText().toString();//获取用户电话号码;
 
-        String finalStr = str;
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
                     OkHttpClient client = new OkHttpClient();
-                    RequestBody responseBody = new FormBody.Builder().add("phoneNumber", finalStr).build();
+                    RequestBody responseBody = new FormBody.Builder().add("phoneNumber", phoneStr).build();
                     Request request = new Request.Builder().url("http://129.204.119.172:8080/getMessage").post(responseBody).build();
                     Call call = client.newCall(request);
                     Response response = call.execute();
@@ -152,8 +152,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         str3 = phoneNumber.getText().toString();//获取用户电话号码
         str4 = validcheck.getText().toString();//获取验证码
 
-        String str5 = "";
-        str5 = MD5Utils.encode(str2);
+        String str5 = MD5Utils.encode(str2);
 
         final String finalStr = str5;
 
@@ -188,7 +187,23 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
      */
     private void requestHttp(String url, String finalStr) throws IOException {
         OkHttpClient client = new OkHttpClient();
-        RequestBody responseBody = new FormBody.Builder().add("nickName", str1).add("password", finalStr).add("phoneNumber", str3).add("validateNum", str4).build();
+        FormBody responseBody = null;
+        if(flag == 1){
+            responseBody = new FormBody.Builder()
+                    .add("name", str1)
+                    .add("password", finalStr)
+                    .add("phoneNumber", str3)
+                    .add("validateNum", str4)
+                    .build();
+        }else if(flag == 2){
+            responseBody = new FormBody.Builder()
+                    .add("nickName", str1)
+                    .add("password", finalStr)
+                    .add("phoneNumber", str3)
+                    .add("validateNum", str4)
+                    .build();
+        }
+        
         Request request = new Request.Builder().url(url).post(responseBody).build();
         Call call = client.newCall(request);
         Response response = call.execute();

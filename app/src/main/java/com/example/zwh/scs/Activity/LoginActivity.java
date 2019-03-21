@@ -157,7 +157,13 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     */
     private void requestNet(String finalStr_password_MD, String s, int option) throws IOException {
         OkHttpClient client = new OkHttpClient();
-        RequestBody responseBody = new FormBody.Builder().add("nickName", str_username).add("password", finalStr_password_MD).build();
+        RequestBody responseBody = null;
+        if(flag == DRIVER_OPTION){
+            responseBody = new FormBody.Builder().add("name", str_username).add("password", finalStr_password_MD).build();
+        }else if(flag == USER_OPTION){
+            responseBody = new FormBody.Builder().add("nick_name", str_username).add("password", finalStr_password_MD).build();
+
+        }
         Request request = new Request.Builder().url(s).post(responseBody).build();
         Call call = client.newCall(request);
         Response response = call.execute();
