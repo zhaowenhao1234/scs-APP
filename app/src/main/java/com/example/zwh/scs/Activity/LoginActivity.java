@@ -162,7 +162,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             responseBody = new FormBody.Builder().add("name", str_username).add("password", finalStr_password_MD).build();
         } else if (option == USER_OPTION) {
             Log.d("123456", "requestNet: "+123456);
-            responseBody = new FormBody.Builder().add("nick_name", str_username).add("password", finalStr_password_MD).build();
+            responseBody = new FormBody.Builder().add("nickName", str_username).add("password", finalStr_password_MD).build();
 
         }
         Request request = new Request.Builder().url(s).post(responseBody).build();

@@ -36,7 +36,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     private String str2 = "";//获取用户密码
     private String str3 = "";//获取用户电话号码
     private String str4 = "";//获取验证码
-    private String code = "";//返回服务器的值
+  
 
     private EditText editText_accountr;//注意实例化的位置
     private EditText editText_passwordr;//
@@ -50,7 +50,9 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     private Handler handler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
-            code = jsonToJsonObject(msg.obj.toString());
+
+            String code = jsonToJsonObject(msg.obj.toString());
+
             switch (msg.arg1) {
                 case 1:
                     if (code.equals("0")) {
@@ -84,6 +86,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        Log.d("123456789", "jsonToJsonObject: "+code);
         return code;
     }
 
