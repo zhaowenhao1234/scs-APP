@@ -131,11 +131,11 @@ public class BaseActivity extends AppCompatActivity {
                         break;
                     case R.id.nav_payment:
                         IntentUtils.SetIntent(getApplication(), WalletActivity.class);
-                        //mDrawerLayout.closeDrawers();
+                        mDrawerLayout.closeDrawers();
                         break;
                     case R.id.nav_msgboard:
                         IntentUtils.SetIntent(getApplication(), MessageActivity.class);
-                        //mDrawerLayout.closeDrawers();
+                        mDrawerLayout.closeDrawers();
                     default:
                         //mDrawerLayout.closeDrawers();
                         break;
