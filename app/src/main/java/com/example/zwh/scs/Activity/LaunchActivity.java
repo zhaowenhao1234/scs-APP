@@ -13,10 +13,18 @@ import com.example.zwh.scs.Util.IntentUtils;
  */
 public class LaunchActivity extends AppCompatActivity {
 
+    private ImageView imageView;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_launch);
+        imageView = findViewById(R.id.launch_bg);
+        if(Math.random() <0.5){
+            imageView.setImageResource(R.drawable.start);
+        }else{
+            imageView.setImageResource(R.drawable.start1);
+        }
+
         //准备启动主活动
         waitForMainActivity();
     }

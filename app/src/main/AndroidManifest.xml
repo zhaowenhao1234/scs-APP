@@ -29,7 +29,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Activity.PersonalActivity"></activity>
+        <activity
+            android:name=".Activity.CarActivity"
+            android:label="@string/title_activity_car"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity android:name=".Activity.PersonalActivity" />
 
         <service
             android:name="com.baidu.location.f"

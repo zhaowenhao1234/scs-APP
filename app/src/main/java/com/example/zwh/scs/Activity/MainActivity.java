@@ -498,10 +498,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         public void onClick(View v) {
             switch (v.getId()) {
                 case R.id.station_name:
-                    Toast.makeText(MainActivity.this, "相册 ", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "点击 ", Toast.LENGTH_SHORT).show();
                     break;
                 case R.id.station_add:
-                    Toast.makeText(MainActivity.this, "拍照 ", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "点击 ", Toast.LENGTH_SHORT).show();
                     break;
                 //点击提示框以外的地方关闭
                 case R.id.dialog_ll:

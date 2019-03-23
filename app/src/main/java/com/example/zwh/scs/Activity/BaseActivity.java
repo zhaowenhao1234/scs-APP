@@ -127,6 +127,7 @@ public class BaseActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 switch (menuItem.getItemId()) {
                     case R.id.nav_task:
+                        IntentUtils.SetIntent(getApplication(), CarActivity.class);
                         mDrawerLayout.closeDrawers();
                         break;
                     case R.id.nav_payment:
