@@ -39,7 +39,10 @@ import com.example.zwh.scs.Activity.MainActivity;
 import com.example.zwh.scs.Listener.MyLocationListener;
 import com.example.zwh.scs.R;
 
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -111,6 +114,8 @@ public class YingYan {
     public void initPara() {
 
         userInfo = UserInfoUtil.getCurrentInfoUserName(context);
+
+
         Log.d(TAG, "initPara: "+userInfo);
         if (userInfo == 0) {
             Toast.makeText(context, "请注册或登录后使用", Toast.LENGTH_SHORT).show();
@@ -136,7 +141,10 @@ public class YingYan {
             mTraceClient.setProtocolType(ProtocolType.HTTP);
             // 开启服务
             mTraceClient.startTrace(mTrace, mTraceListener);
+
         }
+
+
     }
 
     /***
@@ -162,7 +170,12 @@ public class YingYan {
             public void onStartTraceCallback(int i, String s) {
                 //当启动服务成功时，开启位置收集服务
                 if (i == QUERY_SUCCESS) {
-                    mTraceClient.startGather(this);
+                    if(userInfo == 2){
+                        queryEntityList();
+                    }else{
+                        mTraceClient.startGather(this);
+                    }
+
                 }
             }
 
@@ -177,10 +190,11 @@ public class YingYan {
                     if (userInfo == 1) {
                         //初次将当前的entity设备信息上传到鹰眼服务
                         upLoadMyEntity();
-                    } else if(userInfo == 2) {
-                        //若用户不是司机直接查询
-                        queryEntityList();
                     }
+//                    else if(userInfo == 2) {
+//                        //若用户不是司机直接查询
+//                        queryEntityList();
+//                    }
                 } else {
                     Toast.makeText(context, "采集服务开启失败！", Toast.LENGTH_SHORT).show();
                 }
@@ -336,9 +350,14 @@ public class YingYan {
 
                 //获得设备唯一标识符
                 String entityName = entityInfo.getEntityName();
-
+                String modifyTime = entityInfo.getModifyTime();
+                if(!judgeCarIsOnline(modifyTime)){
+                    continue;
+                }
                 //获得设备旋转方向
                 int direction = entityInfo.getLatestLocation().getDirection();
+                Log.d(TAG, "handleEntitiesInfo: "+entityInfo.getModifyTime());
+
 
                 //获得设备经纬度及其转换后的经纬度
                 com.baidu.trace.model.LatLng latLng = entityInfo.getLatestLocation().getLocation();
@@ -363,6 +382,29 @@ public class YingYan {
             Toast.makeText(context, "未查询到在线的小白", Toast.LENGTH_SHORT).show();
         }
 
+    }
+
+    /***
+    *判断司机是否在线
+    *@return void
+    *@author wenhaoz
+    *created at 2019/3/23 15:39
+    */
+    private boolean judgeCarIsOnline(String modifyTime) {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        ParsePosition position = new ParsePosition(0);
+
+        long modifyDate =format.parse(modifyTime,position).getTime();
+        long currentDate = System.currentTimeMillis();
+
+        long space = (currentDate - modifyDate);
+
+        Log.d(TAG, "judgeCarIsOnline: "+space);
+        if(space >60000){
+            return false;
+        }else{
+            return true;
+        }
     }
 
     /***

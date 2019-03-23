@@ -114,6 +114,7 @@ public class BaseActivity extends AppCompatActivity {
                     IntentUtils.SetIntent(getApplicationContext(), PersonalActivity.class);
                 }else{
                     IntentUtils.SetIntent(getApplicationContext(), LoginActivity.class);
+                    mDrawerLayout.closeDrawers();
                 }
             }
         });

@@ -46,7 +46,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private Button jumpToRegister;
     private Button back;
     private RadioGroup radio_group_login;
-    private int flag;
+    public static int flag;
 
 
     private Handler handler = new Handler(new Handler.Callback() {
@@ -57,7 +57,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             if (code.equals("0")) {
                 MainActivity.isLogin = true;
                 //保存当前信息
-                UserInfoUtil.saveCurrentInfo(getApplicationContext(), msg.arg1, str_username);
+                UserInfoUtil.saveCurrentInfo(getApplicationContext(), msg.arg1);
 
                 Toast.makeText(LoginActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
                 finish();

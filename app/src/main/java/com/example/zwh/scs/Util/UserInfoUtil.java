@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 import android.os.Message;
 import android.util.Log;
 
+import com.example.zwh.scs.Activity.MainActivity;
+
 import static android.content.Context.MODE_PRIVATE;
 
 /**
@@ -18,22 +20,24 @@ public class UserInfoUtil {
      *@author wenhaoz
      *created at 2019/3/20 16:59
      */
-    public static void saveCurrentInfo(Context context, int option, String str_username) {
+    public static void saveCurrentInfo(Context context, int option) {
         userInfo = context.getSharedPreferences("uesrinfo",MODE_PRIVATE);
         SharedPreferences.Editor editor = userInfo.edit();
-        editor.putString("username",str_username);//用户名
         editor.putInt("option",option);//用户模式（司机，乘客）
+        editor.putBoolean("islogin", MainActivity.isLogin);
         editor.commit();
     }
 
     public static int getCurrentInfoUserName(Context context) {
         userInfo = context.getSharedPreferences("uesrinfo",MODE_PRIVATE);
-        String userName=userInfo.getString("username",null);
         int userOption=userInfo.getInt("option",0);
-        Log.d("dfa", "getCurrentInfoUserName: "+userOption);
         return userOption;
     }
 
-
+    public static boolean getCurrentInfoUserState(Context context){
+        userInfo = context.getSharedPreferences("uesrinfo",MODE_PRIVATE);
+        boolean islogin=userInfo.getBoolean("islogin",false);
+        return islogin;
+    }
 
 }
