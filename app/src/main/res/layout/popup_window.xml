@@ -45,7 +45,13 @@
                 android:textColor="#000000"
                 android:textSize="15sp" />
 
+            <Button
+                android:id="@+id/go_here"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
         </LinearLayout>
 
     </LinearLayout>
+
 </RelativeLayout>

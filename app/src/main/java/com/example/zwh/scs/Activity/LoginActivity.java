@@ -34,8 +34,8 @@ import okhttp3.Response;
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener, RadioGroup.OnCheckedChangeListener {
 
 
-    private static final int DRIVER_OPTION = 1;
-    private static final int USER_OPTION = 2;
+    public static final int DRIVER_OPTION = 1;
+    public static final int USER_OPTION = 2;
     private String str_username = "";//获取用户名
     private String str_password = "";//用户密码
     private String code;//服务器返回的值
@@ -163,7 +163,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         } else if (option == USER_OPTION) {
             Log.d("123456", "requestNet: "+123456);
             responseBody = new FormBody.Builder().add("nickName", str_username).add("password", finalStr_password_MD).build();
-
         }
         Request request = new Request.Builder().url(s).post(responseBody).build();
         Call call = client.newCall(request);

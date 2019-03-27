@@ -7,24 +7,16 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
-import android.annotation.SuppressLint;
-import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Looper;
 import android.os.PowerManager;
 import android.provider.Settings;
-import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Gravity;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
@@ -42,26 +34,26 @@ import com.baidu.mapapi.map.MapView;
 import com.baidu.mapapi.map.Marker;
 import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.model.LatLng;
+import com.baidu.mapapi.search.route.RoutePlanSearch;
 import com.example.zwh.scs.Data.StationData;
 import com.example.zwh.scs.Listener.MyLocationListener;
 import com.example.zwh.scs.R;
 import com.example.zwh.scs.Util.ImageUtil;
+import com.example.zwh.scs.Util.IntentUtils;
+import com.example.zwh.scs.Util.RoutePlanUtil;
 import com.example.zwh.scs.Util.UserInfoUtil;
 import com.example.zwh.scs.Util.YingYan;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends BaseActivity implements View.OnClickListener {
     private static final String TAG = "MainActivity".getClass().getSimpleName();
     private static final int PERMISSION_REQUESTCODE = 1;
+    private static final int CLOSE_ROUTE = 123;
     public static BaiduMap mBaidumap = null;
     public static boolean isLogin;
-
+    public boolean isRoutePlan = false;
     //布局view
     //地图模式状态标志
     private boolean mapMode;
@@ -71,10 +63,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     private Button map_mode;
     private Button traffic_mode;
 
-
     //地图有关类
     private MapView mMapView = null;
-    private LocationClient locationClient = null;
+    public static LocationClient locationClient = null;
     private MyLocationListener myLocationListener = null;
 
     //鹰眼服务类
@@ -85,6 +76,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 
     //地点位置详情
     private PopupWindow pw = null;
+    private Button close_route = null;
+    private LinearLayout close_route_view = null;
+    private RoutePlanUtil search = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -203,8 +197,12 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     }
 
     private void initYingYan() {
+        if (LoginActivity.flag == LoginActivity.DRIVER_OPTION) {
+            Toast.makeText(this, "上传司机位置", Toast.LENGTH_SHORT).show();
+        } else if (LoginActivity.flag == LoginActivity.USER_OPTION) {
+            Toast.makeText(this, "查询司机位置", Toast.LENGTH_SHORT).show();
+        }
         yingYan = new YingYan(getApplicationContext());
-        Toast.makeText(this, "查询司机位置", Toast.LENGTH_SHORT).show();
     }
 
 
@@ -216,21 +214,18 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
      */
     private void initView() {
         isLogin = UserInfoUtil.getCurrentInfoUserState(getApplicationContext());
+
         //获取地图控件引用
         mMapView = findViewById(R.id.bmapView);
-
-        map_mode = (Button) findViewById(R.id.map_mode);
-        traffic_mode = (Button) findViewById(R.id.traffic_mode);
-        map_mode = findViewById(R.id.map_mode);
-        traffic_mode = findViewById(R.id.traffic_mode);
-
+        search = new RoutePlanUtil(MainActivity.this);
 
         //获得baidumap实例
         mBaidumap = mMapView.getMap();
         my_location = findViewById(R.id.my_location);
         traffic_mode = findViewById(R.id.traffic_mode);
         openYingYan = findViewById(R.id.openYingYan);
-
+        map_mode = findViewById(R.id.map_mode);
+        close_route_view = findViewById(R.id.close_route);
         //设置监听
         openYingYan.setOnClickListener(this);
         my_location.setOnClickListener(this);
@@ -314,6 +309,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
             Bundle bundle = new Bundle();
             bundle.putString("name", StationData.name[i]);
             bundle.putString("add", StationData.add[i]);
+            bundle.putString("mode", "station");
             marker.setExtraInfo(bundle);
             markerList.add(marker);
         }
@@ -341,7 +337,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
 
 
         //存储下当前的登录状态
-        UserInfoUtil.saveCurrentInfo(getApplicationContext(),LoginActivity.flag);
+        UserInfoUtil.saveCurrentInfo(getApplicationContext(), LoginActivity.flag);
         //注销所有鹰眼相关服务
         yingYan.mTraceClient.stopTrace(yingYan.mTrace, yingYan.mTraceListener);
         yingYan.mTraceClient.clear();
@@ -381,9 +377,27 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
             case R.id.traffic_mode:
                 setTrafficOverlay();
                 break;
+
+            case CLOSE_ROUTE:
+                cancelRoutePlan();
+                break;
+
             default:
                 break;
         }
+    }
+
+    /***
+     *取消行程
+     *@return void
+     *@author wenhaoz
+     *created at 2019/3/27 21:47
+     */
+    private void cancelRoutePlan() {
+        isRoutePlan = false;
+        search.removeAllOverlay();
+        Toast.makeText(MainActivity.this, "行程已取消", Toast.LENGTH_SHORT).show();
+        close_route_view.removeAllViews();
     }
 
     /**
@@ -427,17 +441,21 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
          * @param marker 被点击的 marker
          */
         public boolean onMarkerClick(Marker marker) {
-            String stationName = marker.getExtraInfo().getString("name");
-            String stationAdd = marker.getExtraInfo().getString("add");
-            com.baidu.mapapi.model.LatLng latLng = new LatLng(marker.getPosition().latitude, marker.getPosition().longitude);
-            MapStatusUpdate u = (MapStatusUpdate) MapStatusUpdateFactory.newLatLngZoom(latLng, 17);
-            mBaidumap.setMapStatus(u);
-            showEditPhotoWindow(stationName, stationAdd);
+            if (!isRoutePlan) {
+                if ((marker.getExtraInfo() != null) && (marker.getExtraInfo().get("mode").equals("station"))) {
+                    String stationName = marker.getExtraInfo().getString("name");
+                    String stationAdd = marker.getExtraInfo().getString("add");
+                    com.baidu.mapapi.model.LatLng latLng = new LatLng(marker.getPosition().latitude, marker.getPosition().longitude);
+                    MapStatusUpdate u = (MapStatusUpdate) MapStatusUpdateFactory.newLatLngZoom(latLng, 17);
+                    mBaidumap.setMapStatus(u);
+                    showStationWindow(stationName, stationAdd, latLng);
+                }
+            }
             return true;
         }
     };
 
-    private void showEditPhotoWindow(String stationName, String stationAdd) {
+    private void showStationWindow(String stationName, String stationAdd, LatLng latLng) {
         View contentView = getLayoutInflater().inflate(R.layout.popup_window, null);
         pw = new PopupWindow(contentView, getWindowManager().getDefaultDisplay().getWidth(), getWindowManager().getDefaultDisplay().getHeight(), true);
         //设置popupwindow弹出动画
@@ -448,12 +466,41 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         //处理popupwindow
         TextView station_name = (TextView) contentView.findViewById(R.id.station_name);
         TextView station_add = (TextView) contentView.findViewById(R.id.station_add);
+        Button go_here = (Button) contentView.findViewById(R.id.go_here);
         station_name.setText(stationName);
         station_add.setText(stationAdd);
         LinearLayout layout = (LinearLayout) contentView.findViewById(R.id.dialog_ll);
         station_name.setOnClickListener(pop);
         station_add.setOnClickListener(pop);
         layout.setOnClickListener(pop);
+        go_here.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                //search.start(myLocationListener.getMylocation(),latLng);
+                search.start(new LatLng(28.072517, 113.008644), latLng);
+                if (pw != null) {
+                    pw.dismiss();
+                }
+                isRoutePlan = true;
+                Toast.makeText(MainActivity.this, "开启行程！", Toast.LENGTH_SHORT).show();
+                addButton();
+            }
+        });
+    }
+
+    /***
+     *动态添加取消行程按钮
+     *@return void
+     *@author wenhaoz
+     *created at 2019/3/27 21:39
+     */
+    private void addButton() {
+        close_route = new Button(MainActivity.this);
+        close_route.setText("关闭行程");
+        close_route.setId(CLOSE_ROUTE);
+        close_route_view.addView(close_route);
+        close_route.setOnClickListener(MainActivity.this);
     }
 
 
@@ -476,6 +523,4 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
             }
         }
     };
-
-
 }

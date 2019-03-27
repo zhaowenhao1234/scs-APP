@@ -1,17 +1,26 @@
 package com.example.zwh.scs.Util;
 
 import android.content.Context;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.text.TextPaint;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.PopupWindow;
 import android.widget.Toast;
 
 import com.baidu.mapapi.animation.AnimationSet;
 import com.baidu.mapapi.animation.RotateAnimation;
 import com.baidu.mapapi.animation.Transformation;
+import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.BitmapDescriptor;
 import com.baidu.mapapi.map.Marker;
 import com.baidu.mapapi.map.MarkerOptions;
@@ -35,10 +44,12 @@ import com.baidu.trace.model.Point;
 import com.baidu.trace.model.ProtocolType;
 import com.baidu.trace.model.PushMessage;
 import com.baidu.trace.model.StatusCodes;
+import com.example.zwh.scs.Activity.LoginActivity;
 import com.example.zwh.scs.Activity.MainActivity;
 import com.example.zwh.scs.Listener.MyLocationListener;
 import com.example.zwh.scs.R;
 
+import java.net.DatagramSocketImplFactory;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -100,9 +111,9 @@ public class YingYan {
     //构造函数
     public YingYan(Context context) {
         this.context = context;
-
         initListener();     //初始化监听器
         initPara();        //初始化各项参数
+
     }
 
     /***
@@ -129,7 +140,7 @@ public class YingYan {
             entities = new ArrayList<>();                      //实体信息集合
             entityName = GetIMEI.getImei(context);             //实体名称
 
-            serviceId = 209693;                                //鹰眼服务ID
+            serviceId = 210639;                                //鹰眼服务ID
 
             //实例化轨迹服务
             mTrace = new Trace(serviceId, entityName, false);
@@ -187,14 +198,12 @@ public class YingYan {
             @Override
             public void onStartGatherCallback(int i, String s) {
                 if (i == QUERY_SUCCESS) {
+                    Toast.makeText(context, "采集服务开启成功！", Toast.LENGTH_SHORT).show();
+                    //若不是司机则不进行位置收集
                     if (userInfo == 1) {
                         //初次将当前的entity设备信息上传到鹰眼服务
                         upLoadMyEntity();
                     }
-//                    else if(userInfo == 2) {
-//                        //若用户不是司机直接查询
-//                        queryEntityList();
-//                    }
                 } else {
                     Toast.makeText(context, "采集服务开启失败！", Toast.LENGTH_SHORT).show();
                 }
@@ -333,7 +342,7 @@ public class YingYan {
             public void run() {
                 handler.sendMessage(message);
             }
-        }, 1000);
+        }, 5000);
     }
 
     /***
@@ -352,7 +361,19 @@ public class YingYan {
                 String entityName = entityInfo.getEntityName();
                 String modifyTime = entityInfo.getModifyTime();
                 if(!judgeCarIsOnline(modifyTime)){
-                    continue;
+                    for (int j = 0; j < markerList.size(); j++) {
+                        if (markerList.get(j).getExtraInfo().get("name").equals(entityName)) {
+                            markerList.get(j).setVisible(false);
+                            break;
+                        }
+                    }
+                } else {
+                    for (int j = 0; j < markerList.size(); j++) {
+                        if (markerList.get(j).getExtraInfo().get("name").equals(entityName)) {
+                            markerList.get(j).setVisible(true);
+                            break;
+                        }
+                    }
                 }
                 //获得设备旋转方向
                 int direction = entityInfo.getLatestLocation().getDirection();
@@ -374,7 +395,12 @@ public class YingYan {
                 if (executor.getQueue().size() == 0) {
                     Message message = Message.obtain();
                     message.what = QUERY_ENTITYLIST;
-                    handler.sendMessage(message);
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            handler.sendMessage(message);
+                        }
+                    }, 5000);
                     break;
                 }
             }
@@ -476,5 +502,6 @@ public class YingYan {
             }
         }
     }
+
 
 }

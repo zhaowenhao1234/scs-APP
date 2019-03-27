@@ -140,7 +140,6 @@ public class CarActivity extends BaseActivity implements View.OnClickListener  {
                     @Override
                     public void run() {
                         initData();
-                        //mAdapter.notifyDataSetChanged();
                         swipeRefresh.setRefreshing(false);
                     }
                 });

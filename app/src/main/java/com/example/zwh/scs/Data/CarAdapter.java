@@ -52,11 +52,13 @@ public class CarAdapter extends RecyclerView.Adapter<CarAdapter.ViewHolder>{
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView driver_name;
         TextView is_online;
+        TextView phone_number;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             driver_name = itemView.findViewById(R.id.driver_name);
             is_online = itemView.findViewById(R.id.is_online);
+            phone_number = itemView.findViewById(R.id.phone_number);
         }
     }
 }
