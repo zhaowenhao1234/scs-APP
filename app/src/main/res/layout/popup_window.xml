@@ -47,6 +47,7 @@
 
             <Button
                 android:id="@+id/go_here"
+                android:text="去着"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 

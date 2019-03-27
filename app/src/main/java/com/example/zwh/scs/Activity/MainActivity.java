@@ -364,11 +364,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                 myLocationListener.showMyLocaton(myLocationListener.location);
                 break;
 
-
             case R.id.openYingYan:
                 initYingYan();
                 break;
-
 
             case R.id.map_mode:
                 changeMapMode();
