@@ -25,10 +25,13 @@ import android.widget.Toast;
 import com.example.zwh.scs.R;
 import com.example.zwh.scs.Util.IntentUtils;
 import com.example.zwh.scs.Util.StatusbarUtil;
+import com.example.zwh.scs.Util.UserInfoUtil;
 import com.example.zwh.scs.Wallet.WalletActivity;
 import com.uuzuche.lib_zxing.activity.CaptureActivity;
 import com.uuzuche.lib_zxing.activity.CodeUtils;
 import com.uuzuche.lib_zxing.activity.ZXingLibrary;
+
+import java.nio.channels.InterruptedByTimeoutException;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -107,10 +110,11 @@ public class BaseActivity extends AppCompatActivity {
         View headView = navView.getHeaderView(0);
         portraitImage = headView.findViewById(R.id.icon_image);
         emailText = headView.findViewById(R.id.mail);
+        emailText.setText(UserInfoUtil.getUserName(getApplicationContext()));
         portraitImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(MainActivity.isLogin){
+                if (UserInfoUtil.getCurrentInfoUserState(getApplicationContext())) {
                     IntentUtils.SetIntent(getApplicationContext(), PersonalActivity.class);
                 }else{
                     IntentUtils.SetIntent(getApplicationContext(), LoginActivity.class);
@@ -136,7 +140,12 @@ public class BaseActivity extends AppCompatActivity {
                         mDrawerLayout.closeDrawers();
                         break;
                     case R.id.nav_msgboard:
-                        IntentUtils.SetIntent(getApplication(), MessageActivity.class);
+                        Bundle bundle = new Bundle();
+                        bundle.putString("name", "发布信息");
+                        Intent intent = new Intent();
+                        intent.setClass(BaseActivity.this, MessageActivity.class);
+                        intent.putExtras(bundle);
+                        startActivity(intent);
                         mDrawerLayout.closeDrawers();
                     default:
                         //mDrawerLayout.closeDrawers();
@@ -149,8 +158,7 @@ public class BaseActivity extends AppCompatActivity {
 
     protected void initContentView(int r) {
         viewContent = findViewById(R.id.viewContent);
-        LayoutInflater.from(BaseActivity.this).inflate(
-                r, viewContent);
+        LayoutInflater.from(BaseActivity.this).inflate(r, viewContent);
     }
 
     @SuppressLint("WrongConstant")

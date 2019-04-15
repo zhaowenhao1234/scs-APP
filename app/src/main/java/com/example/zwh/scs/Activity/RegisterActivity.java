@@ -36,7 +36,6 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     private String str2 = "";//获取用户密码
     private String str3 = "";//获取用户电话号码
     private String str4 = "";//获取验证码
-  
 
     private EditText editText_accountr;//注意实例化的位置
     private EditText editText_passwordr;//
@@ -165,10 +164,12 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                 try {
 
                     if (flag == 1) {
+                        Log.d("mode", "run: " + flag);
                         String url = "http://129.204.119.172:8080/driver/register";
                         requestHttp(url, finalStr);
 
                     } else if (flag == 2) {
+                        Log.d("mode", "run: " + flag);
                         String url = "http://129.204.119.172:8080/user/register";
                         requestHttp(url, finalStr);
                     }
@@ -192,9 +193,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         RequestBody responseBody = null;
         if(flag == 1){
             responseBody = new FormBody.Builder()
-                    .add("name", str1)
-                    .add("password", finalStr)
-                    .add("phoneNumber", str3)
+                    .add("name", str1).add("password", finalStr).add("phoneNum", str3)
                     .add("validateNum", str4)
                     .build();
         }else if(flag == 2){
@@ -205,7 +204,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                     .add("validateNum", str4)
                     .build();
         }
-        
+
         Request request = new Request.Builder().url(url).post(responseBody).build();
         Call call = client.newCall(request);
         Response response = call.execute();

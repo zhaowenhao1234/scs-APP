@@ -2,13 +2,23 @@
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="100dp"
     android:layout_margin="10dp"
     android:layout_marginTop="5dp"
     android:layout_marginBottom="5dp"
     android:orientation="vertical"
     app:cardCornerRadius="3dp">
 
+    <FrameLayout
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_margin="5dp">
+
+        <ImageView
+            android:background="@drawable/lost"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </FrameLayout>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -18,22 +28,40 @@
         android:orientation="vertical">
 
         <TextView
+            android:text="信息内容"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp" />
+        <TextView
             android:id="@+id/tv_msg_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:maxLines="2"
-            android:textSize="20sp"
-            android:textStyle="bold" />
+            android:layout_marginLeft="60dp"
+            android:maxLines="10"
+            android:textStyle="bold"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_gravity="bottom|right"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_marginLeft="60dp"
+            android:layout_gravity="bottom"
+            android:text="发布时间:  "
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp" />
 
         <TextView
             android:id="@+id/tv_msg_time"
-            android:layout_width="match_parent"
+            android:layout_gravity="bottom"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:textSize="16sp"
-            android:textStyle="normal" />
-
+            android:textSize="12sp" />
     </LinearLayout>
-
 </android.support.v7.widget.CardView>

@@ -36,9 +36,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     public static final int DRIVER_OPTION = 1;
     public static final int USER_OPTION = 2;
+    private String id;//获取用户id
     private String str_username = "";//获取用户名
     private String str_password = "";//用户密码
     private String code;//服务器返回的值
+
     private EditText accountEditl;
     private EditText passwordEditl;
     private Button login;
@@ -55,10 +57,15 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             Log.d("123456", "handleMessage: "+msg.obj.toString());
             code = jsonToJsonObject(msg.obj.toString());
             if (code.equals("0")) {
-                MainActivity.isLogin = true;
+//                MainActivity.isLogin = true;
                 //保存当前信息
-                UserInfoUtil.saveCurrentInfo(getApplicationContext(), msg.arg1);
-
+                Bundle bundle = new Bundle();
+                bundle.putString("id", id);
+                bundle.putString("account", str_username);
+                bundle.putString("password", str_password);
+                bundle.putInt("option", msg.arg1);
+                bundle.putBoolean("status", true);
+                UserInfoUtil.saveCurrentInfo(getApplicationContext(), bundle);
                 Toast.makeText(LoginActivity.this, "登录成功", Toast.LENGTH_SHORT).show();
                 finish();
             } else {
@@ -67,6 +74,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             return true;
         }
     });
+
 
 
     @Override
@@ -88,7 +96,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
      *created at 2019/3/19 23:13
      */
     private void initView() {
-        MainActivity.isLogin = false;
+//        MainActivity.isLogin = false;
         accountEditl = findViewById(R.id.accountl);
         passwordEditl = findViewById(R.id.passwordl);
         login = findViewById(R.id.login_btn);
@@ -180,10 +188,12 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
      *created at 2019/3/19 23:18
      */
     public String jsonToJsonObject(String json) {
+        Log.d("hello", "jsonToJsonObject: " + json);
         String code = "";
         try {
             JSONObject jsonObject = new JSONObject(json);
             code = jsonObject.optString("code");
+            id = jsonObject.optString("id");
         } catch (JSONException e) {
             e.printStackTrace();
         }

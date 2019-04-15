@@ -9,14 +9,18 @@ import android.net.Uri;
 import android.os.Build;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.os.PowerManager;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
-import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
@@ -34,34 +38,52 @@ import com.baidu.mapapi.map.MapView;
 import com.baidu.mapapi.map.Marker;
 import com.baidu.mapapi.map.MarkerOptions;
 import com.baidu.mapapi.model.LatLng;
-import com.baidu.mapapi.search.route.RoutePlanSearch;
+import com.example.zwh.scs.Bean.Driver;
 import com.example.zwh.scs.Data.StationData;
 import com.example.zwh.scs.Listener.MyLocationListener;
 import com.example.zwh.scs.R;
 import com.example.zwh.scs.Util.ImageUtil;
-import com.example.zwh.scs.Util.IntentUtils;
+import com.example.zwh.scs.Util.NetWorkUtil;
 import com.example.zwh.scs.Util.RoutePlanUtil;
+import com.example.zwh.scs.Util.UploadUtil;
 import com.example.zwh.scs.Util.UserInfoUtil;
 import com.example.zwh.scs.Util.YingYan;
+import com.google.gson.Gson;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.FormBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class MainActivity extends BaseActivity implements View.OnClickListener {
     private static final String TAG = "MainActivity".getClass().getSimpleName();
     private static final int PERMISSION_REQUESTCODE = 1;
     private static final int CLOSE_ROUTE = 123;
     public static BaiduMap mBaidumap = null;
-    public static boolean isLogin;
+
     public boolean isRoutePlan = false;
     //布局view
     //地图模式状态标志
     private boolean mapMode;
+    private boolean yingyanMode;
 
     private Button my_location;
     private Button openYingYan;
     private Button map_mode;
     private Button traffic_mode;
+
+    private View mPopView;
+    private PopupWindow mPopupWindow;
+    private TextView pop_tittle;
+    private TextView tv_pop_content;
+    private Button btn_pop_ok;
+    private Button btn_pop_cancel;
 
     //地图有关类
     private MapView mMapView = null;
@@ -80,6 +102,26 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     private LinearLayout close_route_view = null;
     private RoutePlanUtil search = null;
 
+
+    public boolean status;
+    public int mode;
+    private RoutePlanUtil routePlanUtil;
+
+    private String showCarId;
+    private int currentEmptyNum;
+
+    private Handler handler = new Handler(new Handler.Callback() {
+        @Override
+        public boolean handleMessage(Message msg) {
+            if (msg.arg1 == 1) {
+                if (mPopupWindow.isShowing()) {
+                    getEmptyNum(showCarId);
+                }
+            }
+            return false;
+        }
+    });
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,10 +130,22 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         initContentView(R.layout.activity_main);
         initToolbarView("scs不等车", true, R.mipmap.oc_black_list_user);
         permission();
+        InitPopWindow();
         initView();//初始化视图
         initBaiduMap();//初始化百度地图
+        if (NetWorkUtil.isNetworkConnected(getApplicationContext())) {
+            Toast.makeText(this, "网络连接正常", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "请检查网络是否正常连接！", Toast.LENGTH_SHORT).show();
+        }
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        status = UserInfoUtil.getCurrentInfoUserState(getApplicationContext());
+        mode = UserInfoUtil.getCurrentInfoUserMode(getApplicationContext());
+    }
 
     /***
      *请求权限
@@ -170,6 +224,62 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         }
     }
 
+    /**
+     *
+     */
+    private void InitPopWindow() {
+        String id = UserInfoUtil.getCurrentInfoUserID(getApplicationContext());
+        // TODO Auto-generated method stub
+        // 将布局文件转换成View对象，popupview 内容视图
+        mPopView = getLayoutInflater().inflate(R.layout.car_message_popwindow, null);
+        // 将转换的View放置到 新建一个popuwindow对象中
+        mPopupWindow = new PopupWindow(mPopView, LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        // 点击popuwindow外让其消失
+        mPopupWindow.setOutsideTouchable(true);
+        // mpopupWindow.setBackgroundDrawable(background);
+        pop_tittle = (TextView) mPopView.findViewById(R.id.pop_tittle);
+        tv_pop_content = (TextView) mPopView.findViewById(R.id.tv_pop_content);
+        btn_pop_ok = (Button) mPopView.findViewById(R.id.btn_pop_ok);
+        btn_pop_cancel = (Button) mPopView.findViewById(R.id.btn_pop_cancel);
+        btn_pop_ok.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                // TODO Auto-generated method stub
+                uploadEmptyNum(showCarId, 1);
+
+                Toast.makeText(getApplicationContext(), "您已上车！", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        btn_pop_cancel.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                // TODO Auto-generated method stub
+                uploadEmptyNum(showCarId, 0);
+                Toast.makeText(getApplicationContext(), "您已下车！", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    public void ShowPopWindow() {
+        if (mPopupWindow.isShowing()) {
+            mPopupWindow.dismiss();
+            routePlanUtil.removeAllOverlay();
+        } else {
+            // 设置PopupWindow 显示的形式 底部或者下拉等
+            // 在某个位置显示
+
+            mPopupWindow.setAnimationStyle(R.style.mypopwindow_anim_style2);
+            mPopupWindow.showAtLocation(mPopView, Gravity.TOP, 0, getSupportActionBar().getHeight());
+            // 作为下拉视图显示
+            // mPopupWindow.showAsDropDown(mPopView, Gravity.CENTER, 200, 300);
+
+        }
+
+    }
+
 
     /***
      *百度地图SDK初始化
@@ -197,12 +307,29 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     }
 
     private void initYingYan() {
-        if (LoginActivity.flag == LoginActivity.DRIVER_OPTION) {
-            Toast.makeText(this, "上传司机位置", Toast.LENGTH_SHORT).show();
-        } else if (LoginActivity.flag == LoginActivity.USER_OPTION) {
-            Toast.makeText(this, "查询司机位置", Toast.LENGTH_SHORT).show();
+        if (yingyanMode) {
+            if (status) {
+                if (mode == LoginActivity.DRIVER_OPTION) {
+                    Toast.makeText(this, "上传司机位置", Toast.LENGTH_SHORT).show();
+                } else if (mode == LoginActivity.USER_OPTION) {
+                    Toast.makeText(this, "查询司机位置", Toast.LENGTH_SHORT).show();
+                }
+                yingYan = new YingYan(getApplicationContext(), mode);
+            } else {
+                Toast.makeText(this, "请登录或注册后使用", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+
+            if (mode == LoginActivity.DRIVER_OPTION) {
+                yingYan.mTraceClient.stopGather(yingYan.mTraceListener);
+                Toast.makeText(this, "司机位置采集服务已停止！", Toast.LENGTH_SHORT).show();
+            } else if (mode == LoginActivity.USER_OPTION) {
+                yingYan.mTraceClient.stopTrace(yingYan.mTrace, yingYan.mTraceListener);
+                Toast.makeText(this, "司机查找功能已关闭！", Toast.LENGTH_SHORT).show();
+            }
         }
-        yingYan = new YingYan(getApplicationContext());
+        yingyanMode = !yingyanMode;
+
     }
 
 
@@ -213,7 +340,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
      *created at 2019/3/6 18:20
      */
     private void initView() {
-        isLogin = UserInfoUtil.getCurrentInfoUserState(getApplicationContext());
+//        isLogin = UserInfoUtil.getCurrentInfoUserState(getApplicationContext());
 
         //获取地图控件引用
         mMapView = findViewById(R.id.bmapView);
@@ -243,6 +370,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     private void initBaiduMap() {
 
         mapMode = true;
+        yingyanMode = true;
         //获得baidumap实例
         mBaidumap = mMapView.getMap();
         //开启我的定位图层
@@ -336,12 +464,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
     protected void onDestroy() {
 
 
-        //存储下当前的登录状态
-        UserInfoUtil.saveCurrentInfo(getApplicationContext(), LoginActivity.flag);
-        //注销所有鹰眼相关服务
-        yingYan.mTraceClient.stopTrace(yingYan.mTrace, yingYan.mTraceListener);
         yingYan.mTraceClient.clear();
-
         //关闭我的定位图层
         mBaidumap.setMyLocationEnabled(false);
 
@@ -396,6 +519,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         search.removeAllOverlay();
         Toast.makeText(MainActivity.this, "行程已取消", Toast.LENGTH_SHORT).show();
         close_route_view.removeAllViews();
+        UploadUtil.uploadRoute(getApplicationContext(), new LatLng(0, 0), new LatLng(0, 0));
     }
 
     /**
@@ -439,21 +563,41 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
          * @param marker 被点击的 marker
          */
         public boolean onMarkerClick(Marker marker) {
+
+            String id = (String) marker.getExtraInfo().get("id");
+            showCarId = id;
+            com.baidu.mapapi.model.LatLng latLng = new LatLng(marker.getPosition().latitude, marker.getPosition().longitude);
             if (!isRoutePlan) {
-                if ((marker.getExtraInfo() != null) && (marker.getExtraInfo().get("mode").equals("station"))) {
+                if ((marker.getExtraInfo().get("mode") != null) && (marker.getExtraInfo().get("mode").equals("station"))) {
                     String stationName = marker.getExtraInfo().getString("name");
                     String stationAdd = marker.getExtraInfo().getString("add");
-                    com.baidu.mapapi.model.LatLng latLng = new LatLng(marker.getPosition().latitude, marker.getPosition().longitude);
                     MapStatusUpdate u = (MapStatusUpdate) MapStatusUpdateFactory.newLatLngZoom(latLng, 17);
                     mBaidumap.setMapStatus(u);
                     showStationWindow(stationName, stationAdd, latLng);
+                } else {
+                    Log.d(TAG, "onMarkerClick: " + id);
+                    getEmptyNum(id);
+                    ShowPopWindow();
+                    getRoute(id);
+
+//                    LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+//                    //第一个参数为xml文件中view的id，第二个参数为此view的父组件，可以为null，android会自动寻找它是否拥有父组件
+//                    View view = inflater.inflate(R.layout.car_message_window, null);
+//                    //响应点击的OnInfoWindowClickListener
+//
+//                    InfoWindow mInfoWindow = new InfoWindow(view, latLng, -100, listener);
+//
+//                    //使InfoWindow生效
+//                    mBaidumap.showInfoWindow(mInfoWindow);
                 }
             }
             return true;
         }
     };
 
+
     private void showStationWindow(String stationName, String stationAdd, LatLng latLng) {
+
         View contentView = getLayoutInflater().inflate(R.layout.popup_window, null);
         pw = new PopupWindow(contentView, getWindowManager().getDefaultDisplay().getWidth(), getWindowManager().getDefaultDisplay().getHeight(), true);
         //设置popupwindow弹出动画
@@ -464,7 +608,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         //处理popupwindow
         TextView station_name = (TextView) contentView.findViewById(R.id.station_name);
         TextView station_add = (TextView) contentView.findViewById(R.id.station_add);
-        Button go_here = (Button) contentView.findViewById(R.id.go_here);
+        ImageView go_here = (ImageView) contentView.findViewById(R.id.go_here);
         station_name.setText(stationName);
         station_add.setText(stationAdd);
         LinearLayout layout = (LinearLayout) contentView.findViewById(R.id.dialog_ll);
@@ -475,8 +619,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
             @Override
             public void onClick(View v) {
 
-                //search.start(myLocationListener.getMylocation(),latLng);
-                search.start(new LatLng(28.072517, 113.008644), latLng);
+                search.start(myLocationListener.getMylocation(), latLng);
+                //search.start(new LatLng(28.072517, 113.008644), latLng);
                 if (pw != null) {
                     pw.dismiss();
                 }
@@ -486,6 +630,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
             }
         });
     }
+
 
     /***
      *动态添加取消行程按钮
@@ -521,4 +666,140 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
             }
         }
     };
+
+    /***
+     *如果是用户的话，则可以点击下小白图标进行当前录像的显示
+     *@return void
+     *@author wenhaoz
+     *created at 2019/4/15 21:08
+     */
+    public void getRoute(String id) {
+        OkHttpClient client = new OkHttpClient();//创建OkHttpClient对象。
+        FormBody.Builder formBody = new FormBody.Builder();//创建表单请求体
+        formBody.add("id", UserInfoUtil.getCurrentInfoUserID(getApplicationContext()));
+        String url = "http://129.204.119.172:8080/driver/getDriver";
+        Request request = new Request.Builder()//创建Request 对象。
+                .url(url).post(formBody.build())//传递请求体
+                .build();
+        client.newCall(request).enqueue(new Callback() {
+
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+
+//                Log.d("uploadRoute", "onResponse: " + response.body().toString());
+                Driver driver = new Driver();
+                Gson gson = new Gson();
+                driver = gson.fromJson(response.body().string(), Driver.class);
+                String stlongtitude = driver.getDriver().getRlLongtitude();
+                String stlatitude = driver.getDriver().getRlLatitude();
+                String edlongtitude = driver.getDriver().getEndLongtitude();
+                String edlatitude = driver.getDriver().getEndLatitude();
+                if (stlongtitude.equals("0.0") && stlatitude.equals("0.0") && edlongtitude.equals("0.0") && edlatitude.equals("0.0")) {
+                    Looper.prepare();
+                    Toast.makeText(MainActivity.this, "该小白当前并未进行路线规划！", Toast.LENGTH_SHORT).show();
+                    Looper.loop();
+                } else {
+                    LatLng latLng1 = new LatLng(Double.parseDouble(stlatitude), Double.parseDouble(stlongtitude));
+                    LatLng latLng2 = new LatLng(Double.parseDouble(edlatitude), Double.parseDouble(edlongtitude));
+                    routePlanUtil = new RoutePlanUtil(MainActivity.this);
+                    routePlanUtil.start(latLng1, latLng2);
+                }
+            }
+        });
+
+    }
+
+    public void getEmptyNum(String id) {
+        OkHttpClient client = new OkHttpClient();//创建OkHttpClient对象。
+        FormBody.Builder formBody = new FormBody.Builder();//创建表单请求体
+        formBody.add("id", id);
+        String url = "http://129.204.119.172:8080/driver/getDriver";
+        Request request = new Request.Builder()//创建Request 对象。
+                .url(url).post(formBody.build())//传递请求体
+                .build();
+        client.newCall(request).enqueue(new Callback() {
+
+
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                Driver driver = new Driver();
+                Gson gson = new Gson();
+                String json = response.body().string();
+                driver = gson.fromJson(json, Driver.class);
+                updateEmptyNum(driver.getDriver().getId(), driver.getDriver().getEmptyNum());
+            }
+        });
+    }
+
+    /***
+     *在弹窗中显示小车空座数量
+     *@return void
+     *@author wenhaoz
+     *created at 2019/4/15 21:29
+     * @param id
+     * @param emptyNum
+     */
+    private void updateEmptyNum(int id, int emptyNum) {
+        currentEmptyNum = emptyNum;
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                pop_tittle.setText("司机 " + id + " 号");
+                tv_pop_content.setText("当前空座数量 ：" + emptyNum + " 个");
+                Message message = Message.obtain();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        message.arg1 = 1;
+                        handler.sendMessage(message);
+                    }
+                }, 2000);
+            }
+        });
+    }
+
+    public void uploadEmptyNum(String id, int status) {
+        if (status == 1) {
+            currentEmptyNum--;
+        } else {
+            currentEmptyNum++;
+        }
+        if (currentEmptyNum >= 0 && currentEmptyNum <= 17) {
+            OkHttpClient client = new OkHttpClient();//创建OkHttpClient对象。
+            FormBody.Builder formBody = new FormBody.Builder();//创建表单请求体
+            formBody.add("id", id);
+            formBody.add("emptyNum", String.valueOf(currentEmptyNum));
+            String url = "http://129.204.119.172:8080/driver/update";
+            Request request = new Request.Builder()//创建Request 对象。
+                    .url(url).post(formBody.build())//传递请求体
+                    .build();
+            client.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+
+                    Log.d("uploadRoute", "onResponse: " + response.body().toString());
+
+                }
+            });
+        } else {
+            Toast.makeText(MainActivity.this, "当前座位已满！", Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
 }

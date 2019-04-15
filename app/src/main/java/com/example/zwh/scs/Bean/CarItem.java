@@ -25,6 +25,7 @@ public class CarItem {
     private int id;
     private String name;
     private String password;
+    private String phoneNum;
     private Object idCard;
     private Object carId;
     private Object emptyNum;
@@ -66,6 +67,13 @@ public class CarItem {
         return password;
     }
 
+    public String getPhoneNum() {
+        return phoneNum;
+    }
+
+    public void setPhoneNum(String phoneNum) {
+        this.phoneNum = phoneNum;
+    }
     public void setPassword(String password) {
         this.password = password;
     }

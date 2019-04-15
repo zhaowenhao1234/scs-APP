@@ -1,5 +1,6 @@
 package com.example.zwh.scs.Activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -11,6 +12,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.util.Printer;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -41,13 +43,13 @@ public class CarActivity extends BaseActivity implements View.OnClickListener  {
     private CarAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private List<CarItem> carItemList = new ArrayList<>();
-
+    private Context context;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         initContentView(R.layout.activity_car);
         initToolbarView("司机列表", true, R.mipmap.im_titlebar_back_p);
-
+        context = CarActivity.this;
         swipeRefresh = findViewById(R.id.swipe_refresh_car);
         swipeRefresh.setColorSchemeColors(getResources().getColor(R.color.black));
         swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -58,7 +60,7 @@ public class CarActivity extends BaseActivity implements View.OnClickListener  {
         });
         initData();
         mRecyclerView = findViewById(R.id.car_list);
-        mAdapter = new CarAdapter(carItemList);
+        mAdapter = new CarAdapter(carItemList, context);
         mLayoutManager = new LinearLayoutManager(this);
         ((LinearLayoutManager) mLayoutManager).setStackFromEnd(true);
         ((LinearLayoutManager) mLayoutManager).setReverseLayout(true);
@@ -155,7 +157,6 @@ public class CarActivity extends BaseActivity implements View.OnClickListener  {
     @Override
     protected void onResume() {
         super.onResume();
-        //refreshData();
     }
 
     @Override

@@ -8,7 +8,7 @@
         android:id="@+id/icon_image"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:src="@mipmap/nav_view"
+        android:src="@drawable/head"
         android:layout_centerInParent="true" />
 
     <TextView

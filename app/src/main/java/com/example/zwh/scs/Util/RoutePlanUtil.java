@@ -33,6 +33,8 @@ public class RoutePlanUtil {
     private RoutePlanSearch mSearch;
     private Context context;
     private MyBikingRouteOverlay overlay = null;
+    private LatLng st;
+    private LatLng en;
 
     public RoutePlanUtil(Context context) {
         this.context = context;
@@ -40,7 +42,8 @@ public class RoutePlanUtil {
 
 
     public void start(LatLng st, LatLng en) {
-
+        this.st = st;
+        this.en = en;
         mSearch = RoutePlanSearch.newInstance();
         mSearch.setOnGetRoutePlanResultListener(listener);
         PlanNode stNode = PlanNode.withLocation(st);
@@ -84,6 +87,7 @@ public class RoutePlanUtil {
         //获取普通骑行路规划结果
         @Override
         public void onGetBikingRouteResult(BikingRouteResult result) {
+            int option = UserInfoUtil.getCurrentInfoUserMode(context);
             if (result == null || result.error != SearchResult.ERRORNO.NO_ERROR) {
                 Toast.makeText(context, "抱歉，未找到结果", Toast.LENGTH_SHORT).show();
                 MainActivity.locationClient.stop();
@@ -101,12 +105,18 @@ public class RoutePlanUtil {
                     overlay.setData(result.getRouteLines().get(0));
                     overlay.addToMap();
                     overlay.zoomToSpan();
+
+                    //司机
+                    if (option == 1) {
+                        UploadUtil.uploadRoute(context, st, en);
+                    }
                 } else {
                     Log.d("route result", "结果数<0");
                     return;
                 }
             }
         }
+
     };
 
 
