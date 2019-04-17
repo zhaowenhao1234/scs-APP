@@ -18,7 +18,7 @@
         android:layout_below="@+id/icon_image"
         android:layout_centerInParent="true"
         android:layout_marginTop="10dp"
-        android:text="SCS不等车"
+        android:text=""
         android:textColor="@color/white"
         android:textSize="14sp" />
 

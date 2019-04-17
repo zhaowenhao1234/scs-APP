@@ -579,16 +579,6 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
                     getEmptyNum(id);
                     ShowPopWindow();
                     getRoute(id);
-
-//                    LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-//                    //第一个参数为xml文件中view的id，第二个参数为此view的父组件，可以为null，android会自动寻找它是否拥有父组件
-//                    View view = inflater.inflate(R.layout.car_message_window, null);
-//                    //响应点击的OnInfoWindowClickListener
-//
-//                    InfoWindow mInfoWindow = new InfoWindow(view, latLng, -100, listener);
-//
-//                    //使InfoWindow生效
-//                    mBaidumap.showInfoWindow(mInfoWindow);
                 }
             }
             return true;
@@ -642,6 +632,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         close_route = new Button(MainActivity.this);
         close_route.setText("关闭行程");
         close_route.setId(CLOSE_ROUTE);
+        close_route.setTextColor(Color.WHITE);
+        close_route.setBackground(getResources().getDrawable(R.drawable.close_route));
         close_route_view.addView(close_route);
         close_route.setOnClickListener(MainActivity.this);
     }

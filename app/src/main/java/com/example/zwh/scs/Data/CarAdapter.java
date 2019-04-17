@@ -51,7 +51,17 @@ public class CarAdapter extends RecyclerView.Adapter<CarAdapter.ViewHolder>{
     public void onBindViewHolder(@NonNull CarAdapter.ViewHolder viewHolder, int i) {
         CarItem carItem = carList.get(i);
         viewHolder.driver_name.setText(carItem.getName());
-        viewHolder.is_online.setText(""+carItem.getIsOnline());
+        try {
+            if ((Boolean) carItem.getIsOnline()) {
+                viewHolder.is_online.setText("在线");
+            } else if ((Boolean) carItem.getIsOnline() == false) {
+                viewHolder.is_online.setText("离线");
+            }
+        } catch (Exception e) {
+            viewHolder.is_online.setText("离线");
+        }
+
+
         viewHolder.phone_number.setText("" + carItem.getPhoneNum());
         viewHolder.call_phone.setOnClickListener(new View.OnClickListener() {
             @Override

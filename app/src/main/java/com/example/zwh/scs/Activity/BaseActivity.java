@@ -110,7 +110,12 @@ public class BaseActivity extends AppCompatActivity {
         View headView = navView.getHeaderView(0);
         portraitImage = headView.findViewById(R.id.icon_image);
         emailText = headView.findViewById(R.id.mail);
-        emailText.setText(UserInfoUtil.getUserName(getApplicationContext()));
+        if (UserInfoUtil.getCurrentInfoUserState(getApplicationContext())) {
+            emailText.setText(UserInfoUtil.getUserName(getApplicationContext()));
+        } else {
+            emailText.setText("请登录");
+        }
+
         portraitImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

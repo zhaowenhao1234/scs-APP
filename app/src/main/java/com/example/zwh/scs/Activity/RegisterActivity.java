@@ -46,14 +46,16 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     private EditText validcheck;
     private RadioGroup radio_group;
     int flag = 0;
+    int time;
     private Handler handler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
-
-            String code = jsonToJsonObject(msg.obj.toString());
-
             switch (msg.arg1) {
+                case 0:
+                    updateTime();
+                    break;
                 case 1:
+                    String code = jsonToJsonObject(msg.obj.toString());
                     if (code.equals("0")) {
                         Toast.makeText(RegisterActivity.this, "验证码获取成功", Toast.LENGTH_SHORT).show();
                     } else {
@@ -61,8 +63,9 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                     }
                     break;
                 case 2:
-                    Log.d("123456789", "handleMessage: "+code);
-                    if (code.equals("0")) {
+                    String code2 = jsonToJsonObject(msg.obj.toString());
+                    Log.d("123456789", "handleMessage: " + code2);
+                    if (code2.equals("0")) {
                         Toast.makeText(RegisterActivity.this, "注册成功", Toast.LENGTH_SHORT).show();
                         finish();
                     } else {
@@ -70,8 +73,6 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                     }
                     break;
             }
-
-
             return true;
         }
     });
@@ -85,7 +86,6 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        Log.d("123456789", "jsonToJsonObject: "+code);
         return code;
     }
 
@@ -113,7 +113,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         radio_group = findViewById(R.id.radio_group);
         phoneNumber = findViewById(R.id.phoneNumber);
         validcheck = findViewById(R.id.validcheck);
-        securityCode.setText("获取验证码");
+
         register.setOnClickListener(this);
         jumpToMainr.setOnClickListener(this);
         securityCode.setOnClickListener(this);
@@ -122,27 +122,33 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
     private void sendRequestWithOkHttp_validCheck() {
 
+        String str1 = editText_accountr.getText().toString();
+        String str2 = editText_passwordr.getText().toString();
         String phoneStr = phoneNumber.getText().toString();//获取用户电话号码;
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    OkHttpClient client = new OkHttpClient();
-                    RequestBody responseBody = new FormBody.Builder().add("phoneNumber", phoneStr).build();
-                    Request request = new Request.Builder().url("http://129.204.119.172:8080/getMessage").post(responseBody).build();
-                    Call call = client.newCall(request);
-                    Response response = call.execute();
-                    Message message = handler.obtainMessage();
-                    message.arg1 = 1;
-                    message.obj = response.body().string();
-                    handler.sendMessage(message);
-                } catch (Exception e) {
-                    e.printStackTrace();
+        if (phoneStr.equals("") || str1.equals("") || str2.equals("") || flag == 0) {
+            Toast.makeText(this, "请输入完整信息！", Toast.LENGTH_SHORT).show();
+        } else {
+            time = 60;
+            updateTime();
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        OkHttpClient client = new OkHttpClient();
+                        RequestBody responseBody = new FormBody.Builder().add("phoneNumber", phoneStr).build();
+                        Request request = new Request.Builder().url("http://129.204.119.172:8080/getMessage").post(responseBody).build();
+                        Call call = client.newCall(request);
+                        Response response = call.execute();
+                        Message message = handler.obtainMessage();
+                        message.arg1 = 1;
+                        message.obj = response.body().string();
+                        handler.sendMessage(message);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
-            }
-        }).start();
-
+            }).start();
+        }
     }
 
 
@@ -246,5 +252,28 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                 flag = 2;
                 break;
         }
+    }
+
+    public void updateTime() {
+        securityCode.setEnabled(false);
+        securityCode.setBackground(getResources().getDrawable(R.drawable.validate_shape_select));
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                time--;
+                securityCode.setText("" + time + "s 后重新获取");
+                Message message = Message.obtain();
+                message.arg1 = 0;
+                if (time != 0) {
+                    handler.sendMessageDelayed(message, 1000);
+                } else {
+                    securityCode.setEnabled(true);
+                    securityCode.setBackground(getResources().getDrawable(R.drawable.validate_shape));
+                    securityCode.setText("获取验证码");
+                }
+
+            }
+        });
+
     }
 }

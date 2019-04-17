@@ -10,11 +10,11 @@
         <item
             android:id="@+id/nav_payment"
             android:icon="@mipmap/nav_payment"
-            android:title="钱包" />
+            android:title="我的钱包" />
         <item
             android:id="@+id/nav_msgboard"
             android:icon="@drawable/lost_find"
-            android:title="留言板" />
+            android:title="在线留言" />
 
     </group>
 </menu>

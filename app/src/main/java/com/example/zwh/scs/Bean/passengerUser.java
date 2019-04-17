@@ -1,111 +1,171 @@
 package com.example.zwh.scs.Bean;
 
+import com.google.gson.Gson;
+
 /**
  * created at 2019/3/17 13:43 by wenhaoz
  */
 //乘客用户信息类
-public class passengerUser {
-    private int id;         //id
-    private int sex;        //性别
-    public Object avatar;  //头像
-    public String nick_name;//昵称
-    private String password;//密码
-    private String phone_number;//手机号
-    private String start_longtitude;//其实位置经度
-    private String start_latitude;//起始位置纬度
-    private String realtime_longtitude;//实时位置经度
-    private String realtime_latitude;//实时位置纬度
-    public int credit_score;//信用积分
+public class PassengerUser {
 
-    public int getId() {
-        return id;
+
+    /**
+     * code : 0
+     * user : {"id":4,"nickName":"赵文浩","password":"VQ4br+B3/wsLZ/TjLynXUQ==","sex":1,"grade":"大二","schoolNum":"201716080125","startLongtitude":null,"startLatitude":null,"rtLongtitude":null,"rtLatitude":null,"creditScore":null,"avator":null}
+     */
+
+    private int code;
+    private UserBean user;
+
+    public static PassengerUser objectFromData(String str) {
+
+        return new Gson().fromJson(str, PassengerUser.class);
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public int getCode() {
+        return code;
     }
 
-    public int getSex() {
-        return sex;
+    public void setCode(int code) {
+        this.code = code;
     }
 
-    public void setSex(int sex) {
-        this.sex = sex;
+    public UserBean getUser() {
+        return user;
     }
 
-    public Object getAvatar() {
-        return avatar;
+    public void setUser(UserBean user) {
+        this.user = user;
     }
 
-    public void setAvatar(Object avatar) {
-        this.avatar = avatar;
+    public static class UserBean {
+        /**
+         * id : 4
+         * nickName : 赵文浩
+         * password : VQ4br+B3/wsLZ/TjLynXUQ==
+         * sex : 1
+         * grade : 大二
+         * schoolNum : 201716080125
+         * startLongtitude : null
+         * startLatitude : null
+         * rtLongtitude : null
+         * rtLatitude : null
+         * creditScore : null
+         * avator : null
+         */
+
+        private int id;
+        private String nickName;
+        private String password;
+        private int sex;
+        private String grade;
+        private String schoolNum;
+        private Object startLongtitude;
+        private Object startLatitude;
+        private Object rtLongtitude;
+        private Object rtLatitude;
+        private Object creditScore;
+        private Object avator;
+
+        public static UserBean objectFromData(String str) {
+
+            return new Gson().fromJson(str, UserBean.class);
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public String getNickName() {
+            return nickName;
+        }
+
+        public void setNickName(String nickName) {
+            this.nickName = nickName;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
+
+        public int getSex() {
+            return sex;
+        }
+
+        public void setSex(int sex) {
+            this.sex = sex;
+        }
+
+        public String getGrade() {
+            return grade;
+        }
+
+        public void setGrade(String grade) {
+            this.grade = grade;
+        }
+
+        public String getSchoolNum() {
+            return schoolNum;
+        }
+
+        public void setSchoolNum(String schoolNum) {
+            this.schoolNum = schoolNum;
+        }
+
+        public Object getStartLongtitude() {
+            return startLongtitude;
+        }
+
+        public void setStartLongtitude(Object startLongtitude) {
+            this.startLongtitude = startLongtitude;
+        }
+
+        public Object getStartLatitude() {
+            return startLatitude;
+        }
+
+        public void setStartLatitude(Object startLatitude) {
+            this.startLatitude = startLatitude;
+        }
+
+        public Object getRtLongtitude() {
+            return rtLongtitude;
+        }
+
+        public void setRtLongtitude(Object rtLongtitude) {
+            this.rtLongtitude = rtLongtitude;
+        }
+
+        public Object getRtLatitude() {
+            return rtLatitude;
+        }
+
+        public void setRtLatitude(Object rtLatitude) {
+            this.rtLatitude = rtLatitude;
+        }
+
+        public Object getCreditScore() {
+            return creditScore;
+        }
+
+        public void setCreditScore(Object creditScore) {
+            this.creditScore = creditScore;
+        }
+
+        public Object getAvator() {
+            return avator;
+        }
+
+        public void setAvator(Object avator) {
+            this.avator = avator;
+        }
     }
-
-    public String getNick_name() {
-        return nick_name;
-    }
-
-    public void setNick_name(String nick_name) {
-        this.nick_name = nick_name;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getPhone_number() {
-        return phone_number;
-    }
-
-    public void setPhone_number(String phone_number) {
-        this.phone_number = phone_number;
-    }
-
-    public String getStart_longtitude() {
-        return start_longtitude;
-    }
-
-    public void setStart_longtitude(String start_longtitude) {
-        this.start_longtitude = start_longtitude;
-    }
-
-    public String getStart_latitude() {
-        return start_latitude;
-    }
-
-    public void setStart_latitude(String start_latitude) {
-        this.start_latitude = start_latitude;
-    }
-
-    public String getRealtime_longtitude() {
-        return realtime_longtitude;
-    }
-
-    public void setRealtime_longtitude(String realtime_longtitude) {
-        this.realtime_longtitude = realtime_longtitude;
-    }
-
-    public String getRealtime_latitude() {
-        return realtime_latitude;
-    }
-
-    public void setRealtime_latitude(String realtime_latitude) {
-        this.realtime_latitude = realtime_latitude;
-    }
-
-    public int getCredit_score() {
-        return credit_score;
-    }
-
-    public void setCredit_score(int credit_score) {
-        this.credit_score = credit_score;
-    }
-
-
-
-
 }

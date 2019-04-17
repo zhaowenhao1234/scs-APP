@@ -25,6 +25,10 @@
                 android:layout_height="match_parent"
                 android:orientation="horizontal">
 
+                <ImageView
+                    android:src="@drawable/construction"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp" />
                 <TextView
                     android:id="@+id/station_name"
                     android:layout_weight="1"
@@ -32,12 +36,12 @@
                     android:layout_height="match_parent"
                     android:layout_gravity="left"
                     android:textColor="#0F0F0F"
-                    android:textSize="20sp" />
+                    android:textSize="30sp" />
 
                 <ImageView
                     android:id="@+id/go_here"
-                    android:layout_width="45dp"
-                    android:layout_height="45dp"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
                     android:background="@drawable/go_here" />
             </LinearLayout>
 

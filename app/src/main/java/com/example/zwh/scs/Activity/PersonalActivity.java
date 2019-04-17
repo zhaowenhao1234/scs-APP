@@ -169,6 +169,7 @@ public class PersonalActivity extends AppCompatActivity implements View.OnClickL
             case R.id.login_out:
                 //更新当前状态
                 UserInfoUtil.setCurrentInfoUserState(getApplicationContext(), false);
+
                 finish();
                 break;
             case R.id.personal_back:

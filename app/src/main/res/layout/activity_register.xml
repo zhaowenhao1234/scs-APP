@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/login_bg"
     tools:context=".Activity.RegisterActivity">
 
 
@@ -16,42 +17,38 @@
         android:layout_height="wrap_content" />
 
     <TextView
-        android:layout_marginTop="100dp"
-        android:layout_marginLeft="40dp"
-        android:layout_marginRight="40dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="70dp"
         android:text="注册"
         android:textColor="#000000"
-        android:textSize="30sp"
+        android:textSize="35sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_marginTop="160dp"
+        android:layout_marginTop="130dp"
         android:gravity="center_horizontal"
         android:layout_height="wrap_content">
-
 
 
         <EditText
             android:layout_marginTop="20dp"
             android:id="@+id/account_register"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
             android:layout_width="300dp"
             android:textColor="#000000"
-            android:hint="请输入你的用户名"
+            android:hint="请输入姓名"
             android:layout_gravity="center_horizontal" />
 
 
         <EditText
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="25dp"
             android:id="@+id/password_register"
             android:layout_height="wrap_content"
             android:layout_width="300dp"
             android:hint="输入密码"
-            android:layout_marginLeft="10dp"
             android:layout_gravity="center_horizontal"
             android:inputType="textPassword" />
 
@@ -59,25 +56,26 @@
         <LinearLayout
             android:layout_width="300dp"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="60dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="80dp"
             android:orientation="horizontal">
 
             <EditText
-
                 android:id="@+id/phoneNumber"
-                android:layout_width="220dp"
+                android:layout_weight="0.3"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:hint="输入手机号" />
 
 
             <Button
                 android:id="@+id/securityCode"
-                android:layout_width="wrap_content"
-                android:layout_height="46dp"
-                android:layout_marginLeft="2dp"
-                android:background="@color/blue"
+                android:layout_weight="0.1"
+                android:layout_width="0dp"
+                android:layout_height="35dp"
+                android:background="@drawable/validate_shape"
                 android:textColor="#FFFFFF"
+                android:text="获取验证码"
                 android:textSize="12sp" />
 
         </LinearLayout>
@@ -88,10 +86,20 @@
             android:id="@+id/validcheck"
             android:layout_height="wrap_content"
             android:layout_width="300dp"
-            android:hint="获取验证码"
-            android:layout_marginLeft="10dp"
+            android:hint="输入验证码"
             android:layout_gravity="center_horizontal"
             android:inputType="textPassword" />
+
+        <Button
+            android:id="@+id/register_btn"
+            android:text="注册"
+            android:textSize="28sp"
+            android:background="@drawable/login_selector"
+            android:textColor="#FFFFFF"
+            android:layout_width="300dp"
+            android:layout_marginTop="30dp"
+            android:layout_centerHorizontal="true"
+            android:layout_height="50dp" />
 
 
     </LinearLayout>
@@ -103,10 +111,10 @@
 
     <RadioGroup
         android:id="@+id/radio_group"
-        android:layout_width="wrap_content"
+        android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="44dp"
-        android:layout_marginTop="300dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="290dp"
         android:orientation="horizontal">
 
         <RadioButton
@@ -116,7 +124,7 @@
             android:layout_marginLeft="20dp"
             android:background="#00000000"
             android:text="司机"
-            android:textColor="#44bce8"
+            android:textColor="#7B8CF8"
             android:textSize="18sp" />
 
         <RadioButton
@@ -126,20 +134,10 @@
             android:layout_marginLeft="120dp"
             android:background="#00000000"
             android:text="乘客"
-            android:textColor="#44bce8"
+            android:textColor="#7B8CF8"
             android:textSize="18sp" />
 
     </RadioGroup>
-    <Button
-        android:id="@+id/register_btn"
-        android:layout_marginTop="480dp"
-        android:text="注册"
-        android:textSize="28sp"
-        android:background="@color/blue"
-        android:textColor="#FFFFFF"
-        android:layout_width="290dp"
-        android:layout_centerHorizontal="true"
-        android:layout_height="40dp" />
 
 
 </RelativeLayout>

@@ -19,10 +19,14 @@ public class LaunchActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_launch);
         imageView = findViewById(R.id.launch_bg);
-        if(Math.random() <0.5){
+        if (Math.random() > 0 && Math.random() < 0.2) {
             imageView.setImageResource(R.drawable.start);
-        }else{
+        } else if (Math.random() > 0.2 && Math.random() < 0.4) {
             imageView.setImageResource(R.drawable.start1);
+        } else if (Math.random() > 0.4 && Math.random() < 0.6) {
+            imageView.setImageResource(R.drawable.start3);
+        } else if (Math.random() > 0.6 && Math.random() < 0.9) {
+            imageView.setImageResource(R.drawable.start4);
         }
 
         //准备启动主活动
@@ -40,7 +44,7 @@ public class LaunchActivity extends AppCompatActivity {
             @Override
             public void run() {
                 try {
-                    Thread.sleep(0);
+                    Thread.sleep(2000);
                     IntentUtils.SetIntent(LaunchActivity.this, MainActivity.class);
                     finish();
                 } catch (InterruptedException e) {

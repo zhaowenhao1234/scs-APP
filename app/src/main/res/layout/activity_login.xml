@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/login_bg"
     tools:context=".Activity.RegisterActivity">
 
 
@@ -15,34 +16,33 @@
         android:layout_height="wrap_content" />
 
     <TextView
-        android:layout_marginTop="100dp"
-        android:layout_marginLeft="40dp"
-        android:layout_marginRight="40dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="70dp"
+        android:layout_centerHorizontal="true"
         android:text="登录"
         android:textColor="#000000"
-        android:textSize="30sp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:textSize="35sp" />
 
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_marginTop="160dp"
+        android:layout_marginTop="150dp"
         android:gravity="center_horizontal"
         android:layout_height="wrap_content">
 
         <EditText
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="40dp"
             android:id="@+id/accountl"
             android:layout_height="wrap_content"
             android:layout_width="300dp"
             android:textColor="#000000"
-            android:hint="请输入你的用户名"
+            android:hint="请输入用户名"
             android:layout_gravity="center_horizontal" />
 
 
         <EditText
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="30dp"
             android:id="@+id/passwordl"
             android:layout_height="wrap_content"
             android:layout_width="300dp"
@@ -51,7 +51,7 @@
 
 
         <RadioGroup
-            android:layout_marginTop="6dp"
+            android:layout_marginTop="40dp"
             android:orientation="horizontal"
             android:id="@+id/radio_group_login"
             android:layout_marginLeft="-20dp"
@@ -86,30 +86,27 @@
 
         <Button
             android:id="@+id/login_btn"
-            android:background="@color/blue"
+            android:background="@drawable/login_selector"
             android:layout_width="295dp"
             android:layout_height="45dp"
-            android:textColor="#FFFFFF"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="45dp"
+            android:layout_marginTop="60dp"
             android:textSize="20sp"
-            android:text="登录" />
+            android:text="登录"
+            android:textColor="@android:color/white" />
 
+        <Button
+            android:id="@+id/jumpToRegister"
+            android:layout_marginTop="25dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/darker_gray"
+            android:background="@android:color/transparent"
+            android:textSize="15sp"
+            android:text="新用户注册" />
 
 
     </LinearLayout>
-
-    <Button
-        android:id="@+id/jumpToRegister"
-        android:layout_marginLeft="252dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="#44bce8"
-        android:background="#00000000"
-        android:layout_marginTop="330dp"
-        android:textSize="15sp"
-        android:text="新用户注册" />
-
 
 
 </RelativeLayout>
