@@ -4,183 +4,140 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/login_bg"
     tools:context=".Activity.RegisterActivity">
 
-    <LinearLayout
 
-        android:id="@+id/register_header"
-        android:padding="10dp"
+
+    <Button
+        android:id="@+id/jumpToMainr"
+        android:background="@mipmap/back"
+        android:layout_margin="8dp"
+        android:layout_width="60dp"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="70dp"
+        android:text="注册"
+        android:textColor="#000000"
+        android:textSize="35sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <LinearLayout
         android:orientation="vertical"
-        android:background="@mipmap/register_header_background"
         android:layout_width="match_parent"
-        android:layout_height="180dp">
-
-        <TextView
-            android:layout_marginTop="55dp"
-            android:textSize="28dp"
-            android:textColor="#FFFFFF"
-            android:layout_marginLeft="75dp"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center_horizontal"
-            android:text="SCS不等车" />
+        android:layout_marginTop="130dp"
+        android:gravity="center_horizontal"
+        android:layout_height="wrap_content">
 
 
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_marginTop="140dp"
-        android:layout_width="match_parent"
-        android:layout_height="310dp"
-        android:background="@mipmap/center_register"
-        android:orientation="vertical">
-
-
-        <TextView
-            android:layout_marginTop="30dp"
-            android:layout_marginLeft="40dp"
-            android:layout_marginRight="40dp"
-            android:text="注册"
-            android:textColor="#000000"
-            android:textSize="26sp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_marginTop="10dp"
-            android:layout_marginLeft="40dp"
-            android:layout_marginRight="40dp"
-            android:layout_height="60dp">
-
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:background="@mipmap/user"
-                android:layout_height="wrap_content" />
-
-            <EditText
-                android:id="@+id/accountr"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginLeft="10dp"
-                android:textColor="#000000"
-                android:hint="请输入你的用户名"
-                android:layout_gravity="center_horizontal" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_marginTop="-15dp"
-            android:layout_marginLeft="40dp"
-            android:layout_marginRight="40dp"
-            android:layout_height="60dp">
-
-
-            <ImageView
-
-                android:background="@mipmap/password1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-            <EditText
-                android:id="@+id/passwordr"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginLeft="10dp"
-                android:layout_gravity="center_horizontal"
-                android:hint="输入密码"
-                android:inputType="textPassword" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_marginLeft="40dp"
-            android:layout_marginTop="-15dp"
-            android:layout_marginRight="40dp"
-            android:layout_height="60dp">
-
-            <ImageView
-
-                android:background="@mipmap/password1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-            <EditText
-                android:id="@+id/password_again"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="确认密码"
-                android:layout_marginLeft="10dp"
-                android:layout_gravity="center_horizontal"
-                android:inputType="textPassword" />
-        </LinearLayout>
-
-
-        <LinearLayout
-            android:layout_marginLeft="50dp"
-            android:layout_width="match_parent"
+        <EditText
+            android:layout_marginTop="20dp"
+            android:id="@+id/account_register"
             android:layout_height="wrap_content"
-            android:layout_marginTop="-10dp"
+            android:layout_width="300dp"
+            android:textColor="#000000"
+            android:hint="请输入姓名"
+            android:layout_gravity="center_horizontal" />
+
+
+        <EditText
+            android:layout_marginTop="25dp"
+            android:id="@+id/password_register"
+            android:layout_height="wrap_content"
+            android:layout_width="300dp"
+            android:hint="输入密码"
+            android:layout_gravity="center_horizontal"
+            android:inputType="textPassword" />
+
+
+        <LinearLayout
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="80dp"
             android:orientation="horizontal">
 
-            <RadioGroup
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="20dp"
-                android:orientation="horizontal">
-
-                <RadioButton
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="乘客" />
+            <EditText
+                android:id="@+id/phoneNumber"
+                android:layout_weight="0.3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:hint="输入手机号" />
 
 
-                <RadioButton
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:text="司机" />
-
-            </RadioGroup>
+            <Button
+                android:id="@+id/securityCode"
+                android:layout_weight="0.1"
+                android:layout_width="0dp"
+                android:layout_height="35dp"
+                android:background="@drawable/validate_shape"
+                android:textColor="#FFFFFF"
+                android:text="获取验证码"
+                android:textSize="12sp" />
 
         </LinearLayout>
 
 
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="-15dp"
-        android:orientation="vertical">
+        <EditText
+            android:layout_marginTop="20dp"
+            android:id="@+id/validcheck"
+            android:layout_height="wrap_content"
+            android:layout_width="300dp"
+            android:hint="输入验证码"
+            android:layout_gravity="center_horizontal"
+            android:inputType="textPassword" />
 
         <Button
             android:id="@+id/register_btn"
-            android:background="@drawable/button_select"
-            android:layout_width="220dp"
-            android:layout_height="45dp"
+            android:text="注册"
+            android:textSize="28sp"
+            android:background="@drawable/login_selector"
             android:textColor="#FFFFFF"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="415dp"
-            android:textSize="20dp"
-            android:text="注册" />
+            android:layout_width="300dp"
+            android:layout_marginTop="30dp"
+            android:layout_centerHorizontal="true"
+            android:layout_height="50dp" />
+
 
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/response_text"
-        android:text="显示数据"
-        android:layout_width="wrap_content"
-        android:layout_marginTop="460dp"
-        android:layout_height="wrap_content" />
+
+
+
+
+
+    <RadioGroup
+        android:id="@+id/radio_group"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="290dp"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/driverP"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:background="#00000000"
+            android:text="司机"
+            android:textColor="#7B8CF8"
+            android:textSize="18sp" />
+
+        <RadioButton
+            android:id="@+id/userP"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="120dp"
+            android:background="#00000000"
+            android:text="乘客"
+            android:textColor="#7B8CF8"
+            android:textSize="18sp" />
+
+    </RadioGroup>
+
 
 </RelativeLayout>

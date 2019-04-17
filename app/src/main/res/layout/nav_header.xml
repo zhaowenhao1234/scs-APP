@@ -2,13 +2,13 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="150dp"
-    android:background="@color/colorPrimary">
+    android:background="@drawable/bg">
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/icon_image"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:src="@mipmap/nav_view"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:src="@drawable/head"
         android:layout_centerInParent="true" />
 
     <TextView
@@ -18,8 +18,8 @@
         android:layout_below="@+id/icon_image"
         android:layout_centerInParent="true"
         android:layout_marginTop="10dp"
-        android:text="Tony@zhu.com"
-        android:textColor="@color/black"
+        android:text=""
+        android:textColor="@color/white"
         android:textSize="14sp" />
 
 

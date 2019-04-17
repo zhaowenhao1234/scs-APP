@@ -52,11 +52,11 @@ public class MyLocationListener extends BDAbstractLocationListener {
         this.location = bdLocation;
         Log.d(TAG, "onReceiveLocation: "+bdLocation.getLocTypeDescription());
         //如果位置为空的话变现实北京地图
-        if (bdLocation.getAdCode() == null) {
-            LatLng latLng = new LatLng(39.914935, 116.403694);
-            MapStatusUpdate update = MapStatusUpdateFactory.newLatLngZoom(latLng, 17);
-            MainActivity.mBaidumap.animateMapStatus(update);
-        } else {
+//        if (bdLocation.getAdCode() == null) {
+//            LatLng latLng = new LatLng(39.914935, 116.403694);
+//            MapStatusUpdate update = MapStatusUpdateFactory.newLatLngZoom(latLng, 17);
+//            MainActivity.mBaidumap.animateMapStatus(update);
+//        } else {
 
             //得到当前位置描述
             getMyAddressDescription();
@@ -77,7 +77,7 @@ public class MyLocationListener extends BDAbstractLocationListener {
                 MainActivity.mBaidumap.animateMapStatus(u);
                 isFirst = false;
             }
-        }
+//        }
     }
 
 
@@ -92,6 +92,11 @@ public class MyLocationListener extends BDAbstractLocationListener {
         String addr = location.getAddrStr(); //获取详细地址信息
         Log.d(TAG, "onReceiveLocation: " + addr + "  " + type + "方向" + location.getDirection());
         return addr;
+    }
+
+    public LatLng getMylocation() {
+        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+        return latLng;
     }
 
 

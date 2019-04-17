@@ -4,17 +4,17 @@
 
         <item
             android:id="@+id/nav_task"
-            android:icon="@mipmap/nav_task"
-            android:title="Task" />
+            android:icon="@drawable/bus_left"
+            android:title="司机列表" />
 
         <item
             android:id="@+id/nav_payment"
             android:icon="@mipmap/nav_payment"
-            android:title="钱包" />
+            android:title="我的钱包" />
         <item
             android:id="@+id/nav_msgboard"
-            android:icon="@mipmap/baseline_question_answer_black_36dp"
-            android:title="留言板" />
+            android:icon="@drawable/lost_find"
+            android:title="在线留言" />
 
     </group>
 </menu>

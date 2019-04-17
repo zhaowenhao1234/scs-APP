@@ -1,6 +1,7 @@
 package com.example.zwh.scs.Activity;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -9,12 +10,17 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import com.example.zwh.scs.R;
 import com.example.zwh.scs.Util.MD5Utils;
 import com.example.zwh.scs.Util.StatusbarUtil;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 
 import okhttp3.Call;
 import okhttp3.FormBody;
@@ -22,70 +28,158 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
-public class RegisterActivity extends AppCompatActivity implements View.OnClickListener {
+public class RegisterActivity extends AppCompatActivity implements View.OnClickListener, RadioGroup.OnCheckedChangeListener {
 
-    String str1 = "";//获取用户名
-    String str3 = "";//获取用户密码（输入密码）
-    String str5 = "";//确认密码
-    private TextView responseText;
+    private String str1 = "";//获取用户名
+    private String str2 = "";//获取用户密码
+    private String str3 = "";//获取用户电话号码
+    private String str4 = "";//获取验证码
+
     private EditText editText_accountr;//注意实例化的位置
     private EditText editText_passwordr;//
-    private EditText editText_password_again;
+    private Button securityCode;
+    private EditText phoneNumber;
     private Button register;
+    private Button jumpToMainr;
+    private EditText validcheck;
+    private RadioGroup radio_group;
+    int flag = 0;
+    int time;
     private Handler handler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
-            responseText.setText(msg.obj.toString());
+            switch (msg.arg1) {
+                case 0:
+                    updateTime();
+                    break;
+                case 1:
+                    String code = jsonToJsonObject(msg.obj.toString());
+                    if (code.equals("0")) {
+                        Toast.makeText(RegisterActivity.this, "验证码获取成功", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(RegisterActivity.this, "验证码获取失败"+code, Toast.LENGTH_SHORT).show();
+                    }
+                    break;
+                case 2:
+                    String code2 = jsonToJsonObject(msg.obj.toString());
+                    Log.d("123456789", "handleMessage: " + code2);
+                    if (code2.equals("0")) {
+                        Toast.makeText(RegisterActivity.this, "注册成功", Toast.LENGTH_SHORT).show();
+                        finish();
+                    } else {
+                        Toast.makeText(RegisterActivity.this, "注册失败", Toast.LENGTH_SHORT).show();
+                    }
+                    break;
+            }
             return true;
         }
     });
+
+
+    public String jsonToJsonObject(String json) {
+        String code = "";
+        try {
+            JSONObject jsonObject = new JSONObject(json);
+            code = jsonObject.optString("code");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return code;
+    }
 
     @SuppressLint("WrongViewCast")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+        initView();
+    }
+
+    /***
+     *布局初始化
+     *@return void
+     *@author wenhaoz
+     *created at 2019/3/20 18:27
+     */
+    private void initView() {
         StatusbarUtil.setTransparentWindow(this, false);
         register = findViewById(R.id.register_btn);
-        editText_accountr = findViewById(R.id.accountr);//须再onCreate里实例化
-        editText_passwordr = findViewById(R.id.passwordr);//须再onCreate里实例化
-        editText_password_again = findViewById(R.id.password_again);
-        responseText = findViewById(R.id.response_text);
+        editText_accountr = findViewById(R.id.account_register);//须再onCreate里实例化
+        editText_passwordr = findViewById(R.id.password_register);//须再onCreate里实例化
+        jumpToMainr = findViewById(R.id.jumpToMainr);
+        securityCode = findViewById(R.id.securityCode);
+        radio_group = findViewById(R.id.radio_group);
+        phoneNumber = findViewById(R.id.phoneNumber);
+        validcheck = findViewById(R.id.validcheck);
 
         register.setOnClickListener(this);
+        jumpToMainr.setOnClickListener(this);
+        securityCode.setOnClickListener(this);
+        radio_group.setOnCheckedChangeListener(this);
     }
+
+    private void sendRequestWithOkHttp_validCheck() {
+
+        String str1 = editText_accountr.getText().toString();
+        String str2 = editText_passwordr.getText().toString();
+        String phoneStr = phoneNumber.getText().toString();//获取用户电话号码;
+        if (phoneStr.equals("") || str1.equals("") || str2.equals("") || flag == 0) {
+            Toast.makeText(this, "请输入完整信息！", Toast.LENGTH_SHORT).show();
+        } else {
+            time = 60;
+            updateTime();
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        OkHttpClient client = new OkHttpClient();
+                        RequestBody responseBody = new FormBody.Builder().add("phoneNumber", phoneStr).build();
+                        Request request = new Request.Builder().url("http://129.204.119.172:8080/getMessage").post(responseBody).build();
+                        Call call = client.newCall(request);
+                        Response response = call.execute();
+                        Message message = handler.obtainMessage();
+                        message.arg1 = 1;
+                        message.obj = response.body().string();
+                        handler.sendMessage(message);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
+        }
+    }
+
 
     private void sendRequestWithOkHttp() {
 
-        str1 = editText_accountr.getText().toString();//getText()要放到监听里面
-        str3 = editText_passwordr.getText().toString();
-        str5 = editText_password_again.getText().toString();
+        str1 = editText_accountr.getText().toString();//getText()要放到监听里面//获取用户名
+        str2 = editText_passwordr.getText().toString();//获取用户密码
+        str3 = phoneNumber.getText().toString();//获取用户电话号码
+        str4 = validcheck.getText().toString();//获取验证码
 
-        String str2 = "";
-        String str4 = "";
-        str2 = MD5Utils.encode(str1);
-        str4 = MD5Utils.encode(str3);
-        Toast.makeText(RegisterActivity.this, str2, Toast.LENGTH_SHORT).show();
-        //Toast.makeText(RegisterActivity.this, str4,Toast.LENGTH_SHORT).show();
+        String str5 = MD5Utils.encode(str2);
 
-        final String finalStr = str2;
-        final String finalStr1 = str4;
+        final String finalStr = str5;
+
 
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    OkHttpClient client = new OkHttpClient();
-                    RequestBody responseBody = new FormBody.Builder().add("userName", str1).add("password", finalStr1).build();
-                    Request request = new Request.Builder().url("http://129.204.119.172:8080/scs/register").post(responseBody).build();
-                    Call call = client.newCall(request);
-                    Response response = call.execute();
-                    Message message = handler.obtainMessage();
-                    message.obj = response.body().string();
-                    handler.sendMessage(message);
-                    //String responseData = response.body().string();//这一句代码在方法体里面只能用一次(包括打印输出的使用)
-                    // showResponse(responseData);
+
+                    if (flag == 1) {
+                        Log.d("mode", "run: " + flag);
+                        String url = "http://129.204.119.172:8080/driver/register";
+                        requestHttp(url, finalStr);
+
+                    } else if (flag == 2) {
+                        Log.d("mode", "run: " + flag);
+                        String url = "http://129.204.119.172:8080/user/register";
+                        requestHttp(url, finalStr);
+                    }
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -94,29 +188,92 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
     }
 
+    /***
+     *联网注册请求
+     *@return void
+     *@author wenhaoz
+     *created at 2019/3/20 18:50
+     */
+    private void requestHttp(String url, String finalStr) throws IOException {
+        OkHttpClient client = new OkHttpClient();
+        RequestBody responseBody = null;
+        if(flag == 1){
+            responseBody = new FormBody.Builder()
+                    .add("name", str1).add("password", finalStr).add("phoneNum", str3)
+                    .add("validateNum", str4)
+                    .build();
+        }else if(flag == 2){
+            responseBody = new FormBody.Builder()
+                    .add("nickName", str1)
+                    .add("password", finalStr)
+                    .add("phoneNumber", str3)
+                    .add("validateNum", str4)
+                    .build();
+        }
+
+        Request request = new Request.Builder().url(url).post(responseBody).build();
+        Call call = client.newCall(request);
+        Response response = call.execute();
+        Message message = handler.obtainMessage();
+        message.obj = response.body().string();
+        message.arg1 = 2;
+        handler.sendMessage(message);
+    }
+
     @Override
     public void onClick(View v) {
-        Log.d("12324", "onClick: ");
-        str3 = editText_passwordr.getText().toString();
-        str5 = editText_password_again.getText().toString();
-        //判断输入密码和确认密码是否一致
-        if (v.getId() == R.id.register_btn) {
-            if (str3.equals(str5)) {
+        switch (v.getId()) {
+            case R.id.securityCode:
+                sendRequestWithOkHttp_validCheck();
+                break;
+            case R.id.register_btn:
                 sendRequestWithOkHttp();
-            } else {
-                Toast.makeText(RegisterActivity.this, "两次输入不一致，请重新输入", Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.jumpToMainr: {
+                Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                startActivity(intent);
+                break;
             }
+
+        }
+
+
+    }
+
+
+    @Override
+    public void onCheckedChanged(RadioGroup group, int checkedId) {
+        flag = 0;
+        switch (checkedId) {
+            case R.id.driverP:
+                flag = 1;
+                break;
+            case R.id.userP:
+                flag = 2;
+                break;
         }
     }
 
-    private void showResponse(final String responseData) {
+    public void updateTime() {
+        securityCode.setEnabled(false);
+        securityCode.setBackground(getResources().getDrawable(R.drawable.validate_shape_select));
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                responseText.setText(responseData);
-                Log.d("123", "run: responseData" + responseData);
+                time--;
+                securityCode.setText("" + time + "s 后重新获取");
+                Message message = Message.obtain();
+                message.arg1 = 0;
+                if (time != 0) {
+                    handler.sendMessageDelayed(message, 1000);
+                } else {
+                    securityCode.setEnabled(true);
+                    securityCode.setBackground(getResources().getDrawable(R.drawable.validate_shape));
+                    securityCode.setText("获取验证码");
+                }
+
             }
         });
-    }
 
+    }
 }
