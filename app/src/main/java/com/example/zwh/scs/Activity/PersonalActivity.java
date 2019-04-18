@@ -2,9 +2,8 @@ package com.example.zwh.scs.Activity;
 
 import android.content.Intent;
 import android.graphics.Color;
-import android.provider.ContactsContract;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -12,11 +11,9 @@ import android.widget.TextView;
 
 import com.example.zwh.scs.Bean.PassengerUser;
 import com.example.zwh.scs.R;
-
 import com.example.zwh.scs.Util.NetWorkUtil;
 import com.example.zwh.scs.Util.UserInfoUtil;
 import com.google.gson.Gson;
-
 
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
@@ -144,16 +141,16 @@ public class PersonalActivity extends AppCompatActivity implements View.OnClickL
 
     private void initView() {
         login_out = findViewById(R.id.login_out);
-        personal_back = (Button) findViewById(R.id.personal_back);
-        head_img = (Button) findViewById(R.id.head_img);
-        nick_name = (Button) findViewById(R.id.nick_name);
-        sex = (Button) findViewById(R.id.sex);
-        grade = (Button) findViewById(R.id.grade);
-        school_id = (Button) findViewById(R.id.school_id);
-        nick_name_text = (TextView) findViewById(R.id.nick_name_text);
-        sex_text = (TextView) findViewById(R.id.sex_text);
-        grade_text = (TextView) findViewById(R.id.grade_text);
-        school_id_text = (TextView) findViewById(R.id.school_id_text);
+        personal_back = findViewById(R.id.personal_back);
+        head_img = findViewById(R.id.head_img);
+        nick_name = findViewById(R.id.nick_name);
+        sex = findViewById(R.id.sex);
+        grade = findViewById(R.id.grade);
+        school_id = findViewById(R.id.school_id);
+        nick_name_text = findViewById(R.id.nick_name_text);
+        sex_text = findViewById(R.id.sex_text);
+        grade_text = findViewById(R.id.grade_text);
+        school_id_text = findViewById(R.id.school_id_text);
         head_img.setOnClickListener(this);
         nick_name.setOnClickListener(this);
         sex.setOnClickListener(this);

@@ -1,16 +1,19 @@
 package com.example.zwh.scs.Wallet;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.zwh.scs.Activity.BaseActivity;
 import com.example.zwh.scs.R;
+import com.example.zwh.scs.Util.IntentUtils;
 import com.example.zwh.scs.Wallet.Alipay.OrderInfoUtil2_0;
 
-public class WithdrawActivity extends AppCompatActivity {
+public class WithdrawActivity extends BaseActivity {
 
     private String BizContent;
     private String Account = "0";
@@ -23,7 +26,8 @@ public class WithdrawActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_withdraw);
+        initContentView(R.layout.activity_withdraw);
+        initToolbarView("提现", true, R.mipmap.im_titlebar_back_p);
         withdrawAccount = findViewById(R.id.ed_withdraw_account);
         withdrawAmount = findViewById(R.id.ed_withdraw_amount);
 
@@ -34,17 +38,41 @@ public class WithdrawActivity extends AppCompatActivity {
                 String withAccount = withdrawAccount.getText().toString();
                 Log.d("YZP", withAccount + withAmount);
                 if (withAmount.equals("")) {
-                    Toast.makeText(WithdrawActivity.this, "提现失败，请输入大于0的提现金额", Toast.LENGTH_LONG).show();
+                    Toast.makeText(WithdrawActivity.this, "提现失败，请输入大于0的提现金额", Toast.LENGTH_SHORT).show();
                 } else if (withAccount.equals("")) {
-                    Toast.makeText(WithdrawActivity.this, "提现失败，请输入正确的支付宝账号", Toast.LENGTH_LONG).show();
+                    Toast.makeText(WithdrawActivity.this, "提现失败，请输入正确的支付宝账号", Toast.LENGTH_SHORT).show();
                 } else {
-                    Account = withAccount;
-                    Amount = withAmount;
+                    if (Integer.parseInt(withAmount) > WalletActivity.walletBalance) {
+                        Toast.makeText(WithdrawActivity.this, "提现失败，余额不足", Toast.LENGTH_SHORT).show();
+                    } else {
+                        WalletActivity.walletBalance -= Integer.parseInt(withAmount);
+                        Toast.makeText(WithdrawActivity.this, "提现成功", Toast.LENGTH_SHORT).show();
+                        IntentUtils.SetIntent(WithdrawActivity.this, WalletActivity.class);
+                    }
                 }
             }
         });
 
 
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                break;
+            default:
+                break;
+        }
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        menu.findItem(R.id.menu_scanner).setVisible(false);
+        menu.findItem(R.id.menu_newMeg).setVisible(false);
+        return true;
     }
 
     private String getBizContent() {

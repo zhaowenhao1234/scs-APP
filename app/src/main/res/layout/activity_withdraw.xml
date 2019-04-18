@@ -4,42 +4,113 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <TextView
+
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="提现到支付宝"
-        android:textSize="20dp" />
+        android:layout_height="80dp"
+        android:layout_marginTop="10dp">
+
+        <ImageView
+            android:id="@+id/tixianicon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentTop="true"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="20dp"
+            android:scaleType="fitXY"
+            android:src="@mipmap/aliwithdraw" />
+
+        <TextView
+            android:id="@+id/tv_tixianToAli"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="25dp"
+            android:layout_marginTop="15dp"
+            android:layout_toRightOf="@id/tixianicon"
+            android:text="提现到支付宝"
+            android:textSize="20dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@id/tv_tixianToAli"
+            android:layout_marginLeft="80dp"
+            android:layout_marginTop="28dp"
+            android:text="SCS团队将全程保障您的资金安全"
+            android:textSize="15dp" />
+
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="18dp"
+        android:background="#F0F0F0" />
+
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="提现金额"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="10dp"
         android:textSize="20dp" />
 
-    <EditText
-        android:id="@+id/ed_withdraw_amount"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:maxLines="1"
-        android:hint="请输入提现金额" />
+        android:layout_height="50dp">
+
+        <ImageView
+            android:id="@+id/ali_RMB1"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentBottom="true"
+            android:paddingLeft="5dp"
+            android:scaleType="fitXY"
+            android:src="@mipmap/aliqian" />
+
+        <EditText
+            android:id="@+id/ed_withdraw_amount"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_toRightOf="@id/ali_RMB1"
+            android:inputType="number"
+            android:singleLine="true" />
+    </RelativeLayout>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="提现账号"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="20dp"
+        android:text="提现账号(支付宝手机号)"
         android:textSize="20dp" />
 
     <EditText
         android:id="@+id/ed_withdraw_account"
         android:layout_width="match_parent"
+        android:layout_marginLeft="15dp"
         android:layout_height="wrap_content"
-        android:maxLines="1"
-        android:hint="请输入提现账号（支付宝手机号）" />
+        android:maxLines="1" />
 
-    <Button
-        android:id="@+id/btn_withdrawToAlipay"
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="20dp"
-        android:text="立即提现" />
+        android:layout_height="match_parent"
+        android:layout_marginTop="13dp"
+        android:background="#F0F0F0"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/btn_withdrawToAlipay"
+            android:layout_width="350dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"
+            android:background="#1195DA"
+            android:text="立即提现"
+            android:textColor="@color/white"
+            android:textSize="20dp" />
+    </LinearLayout>
+
+
 </LinearLayout>
