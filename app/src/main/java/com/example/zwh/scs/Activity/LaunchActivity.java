@@ -1,8 +1,12 @@
 package com.example.zwh.scs.Activity;
 
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
 
 import com.example.zwh.scs.R;
@@ -18,6 +22,24 @@ public class LaunchActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_launch);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            int flagTranslucentStatus = WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
+            int flagTranslucentNavigation = WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                Window window = getWindow();
+                WindowManager.LayoutParams attributes = window.getAttributes();
+                attributes.flags |= flagTranslucentNavigation;
+                window.setAttributes(attributes);
+                getWindow().setStatusBarColor(Color.TRANSPARENT);
+            } else {
+                Window window = getWindow();
+                WindowManager.LayoutParams attributes = window.getAttributes();
+                attributes.flags |= flagTranslucentStatus | flagTranslucentNavigation;
+                window.setAttributes(attributes);
+            }
+        }
+
         imageView = findViewById(R.id.launch_bg);
         if (Math.random() > 0 && Math.random() < 0.2) {
             imageView.setImageResource(R.drawable.start);

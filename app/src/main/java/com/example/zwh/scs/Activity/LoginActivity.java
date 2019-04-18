@@ -1,8 +1,6 @@
 package com.example.zwh.scs.Activity;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -82,7 +80,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         StatusbarUtil.setTransparentWindow(this, false);
-
         initView();
 
 
